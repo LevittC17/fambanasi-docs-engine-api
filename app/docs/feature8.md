@@ -84,3 +84,97 @@ FastAPI application infrastructure and core API endpoints:
 /api/v1/search/             # (To be implemented)
 /api/v1/media/              # (To be implemented)
 /api/v1/webhooks/           # (To be implemented)
+```
+
+## Summary of Feature 9: Remaining API Endpoints
+
+Implemented all remaining API endpoints completing the full API surface:
+
+**What was created:**
+
+1. **Navigation Endpoints** (`app/api/v1/endpoints/navigation.py`):
+   - `GET /navigation/tree`: Complete hierarchical navigation tree
+   - `GET /navigation/breadcrumbs`: Breadcrumb trail for any path
+   - Live repository state (no caching)
+   - Branch support for both operations
+
+2. **Metadata Endpoints** (`app/api/v1/endpoints/metadata.py`):
+   - `GET /metadata/`: List and filter metadata with pagination
+   - `GET /metadata/stats`: Analytics (counts, averages, categories)
+   - `GET /metadata/{id}`: Get metadata by ID
+   - `POST /metadata/`: Create metadata (Editor+)
+   - `PUT /metadata/{id}`: Update metadata (Editor+)
+   - `DELETE /metadata/{id}`: Delete metadata (Admin only)
+   - `PUT /metadata/bulk`: Bulk update across multiple documents (Editor+)
+
+3. **Search Endpoints** (`app/api/v1/endpoints/search.py`):
+   - `GET /search/`: Full-text metadata search with relevance scoring
+   - `GET /search/suggestions`: Autocomplete suggestions (< 20ms target)
+   - `GET /search/filters`: Available filter options for UI
+   - Relevance scoring (title match: 0.7, description: 0.3)
+   - Sorted results by relevance descending
+
+4. **Media Endpoints** (`app/api/v1/endpoints/media.py`):
+   - `POST /media/upload`: Upload with automatic type detection (Editor+)
+   - `GET /media/`: List uploaded files (Editor+)
+   - `DELETE /media/{path}`: Delete media file (Editor+)
+   - Content-type validation against allowlist
+   - File size enforcement with 413 responses
+   - Separate image optimization vs document upload paths
+
+5. **Webhook Endpoints** (`app/api/v1/endpoints/webhooks.py`):
+   - `POST /webhooks/github`: GitHub push event handler
+   - HMAC SHA-256 signature verification (constant-time comparison)
+   - Ping event handling (first webhook setup)
+   - Push event filtering (main branch only)
+   - Metadata invalidation for deleted files
+   - Complete audit logging of all events
+
+6. **User Management Endpoints** (`app/api/v1/endpoints/users.py`):
+   - `GET /users/`: List all users with filters (Admin only)
+   - `GET /users/{id}`: Get user by ID (Admin only)
+   - `PUT /users/{id}`: Update user role/status (Admin only)
+   - `GET /users/{id}/activity`: User audit trail (Admin only)
+   - Role change audit logging with before/after state
+
+**Complete API Surface:**
+```
+GET    /                            → API info
+GET    /health                      → Service health
+POST   /api/v1/auth/login           → Login
+GET    /api/v1/auth/me              → Current user
+POST   /api/v1/auth/logout          → Logout
+GET    /api/v1/documents/{path}     → Get document
+POST   /api/v1/documents/           → Create document  (Editor+)
+PUT    /api/v1/documents/{path}     → Update document  (Editor+)
+DELETE /api/v1/documents/{path}     → Delete document  (Editor+)
+GET    /api/v1/documents/           → List documents
+POST   /api/v1/drafts/              → Create draft
+GET    /api/v1/drafts/{id}          → Get draft
+PUT    /api/v1/drafts/{id}          → Update draft
+DELETE /api/v1/drafts/{id}          → Delete draft
+POST   /api/v1/drafts/{id}/submit   → Submit for review
+POST   /api/v1/drafts/{id}/review   → Review (Editor+)
+POST   /api/v1/drafts/{id}/publish  → Publish (Editor+)
+GET    /api/v1/drafts/              → List drafts
+GET    /api/v1/metadata/            → List metadata
+GET    /api/v1/metadata/stats       → Analytics
+GET    /api/v1/metadata/{id}        → Get metadata
+POST   /api/v1/metadata/            → Create (Editor+)
+PUT    /api/v1/metadata/{id}        → Update (Editor+)
+DELETE /api/v1/metadata/{id}        → Delete (Admin)
+PUT    /api/v1/metadata/bulk        → Bulk update (Editor+)
+GET    /api/v1/navigation/tree      → Navigation tree
+GET    /api/v1/navigation/breadcrumbs → Breadcrumbs
+GET    /api/v1/search/              → Search documents
+GET    /api/v1/search/suggestions   → Autocomplete
+GET    /api/v1/search/filters       → Filter options
+POST   /api/v1/media/upload         → Upload (Editor+)
+GET    /api/v1/media/               → List media (Editor+)
+DELETE /api/v1/media/{path}         → Delete media (Editor+)
+GET    /api/v1/users/               → List users (Admin)
+GET    /api/v1/users/{id}           → Get user (Admin)
+PUT    /api/v1/users/{id}           → Update user (Admin)
+GET    /api/v1/users/{id}/activity  → User activity (Admin)
+POST   /api/v1/webhooks/github      → GitHub webhook
+```
