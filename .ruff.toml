@@ -1,0 +1,29 @@
+target-version = "py314"
+line-length = 100
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit (security)
+    "N",   # pep8-naming
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "S101",  # use of assert (needed in tests)
+    "S106",  # hardcoded password (false positives in config)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**" = ["S101", "S105", "S106"]
+"alembic/**" = ["F401"]
+
+[lint.isort]
+known-first-party = ["app"]
