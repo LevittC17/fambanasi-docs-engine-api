@@ -5,7 +5,7 @@ Handles JWT token extraction, validation, and user context
 setting for all authenticated requests.
 """
 
-from typing import Callable
+from collections.abc import Awaitable, Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -23,7 +23,9 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
     in the request state for downstream processing.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """
         Process request and handle authentication.
 

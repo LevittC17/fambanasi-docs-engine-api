@@ -8,7 +8,7 @@ and error messages for consistent error handling across the API.
 from typing import Any
 
 
-class BaseAPIException(Exception):
+class BaseAPIError(Exception):
     """Base exception class for all API exceptions."""
 
     def __init__(
@@ -31,7 +31,7 @@ class BaseAPIException(Exception):
         super().__init__(self.message)
 
 
-class AuthenticationError(BaseAPIException):
+class AuthenticationError(BaseAPIError):
     """Raised when authentication fails."""
 
     def __init__(
@@ -42,7 +42,7 @@ class AuthenticationError(BaseAPIException):
         super().__init__(message=message, status_code=401, details=details)
 
 
-class AuthorizationError(BaseAPIException):
+class AuthorizationError(BaseAPIError):
     """Raised when user lacks required permissions."""
 
     def __init__(
@@ -53,7 +53,7 @@ class AuthorizationError(BaseAPIException):
         super().__init__(message=message, status_code=403, details=details)
 
 
-class ResourceNotFoundError(BaseAPIException):
+class ResourceNotFoundError(BaseAPIError):
     """Raised when requested resource doesn't exist."""
 
     def __init__(self, resource: str, identifier: str | None = None) -> None:
@@ -63,39 +63,35 @@ class ResourceNotFoundError(BaseAPIException):
         super().__init__(message=message, status_code=404)
 
 
-class ResourceConflictError(BaseAPIException):
+class ResourceConflictError(BaseAPIError):
     """Raised when resource operation conflicts with current state."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
         super().__init__(message=message, status_code=409, details=details)
 
 
-class ValidationError(BaseAPIException):
+class ValidationError(BaseAPIError):
     """Raised when input validation fails."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
         super().__init__(message=message, status_code=422, details=details)
 
 
-class GitHubAPIError(BaseAPIException):
+class GitHubAPIError(BaseAPIError):
     """Raised when GitHub API operation fails."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
-        super().__init__(
-            message=f"GitHub API error: {message}", status_code=502, details=details
-        )
+        super().__init__(message=f"GitHub API error: {message}", status_code=502, details=details)
 
 
-class SupabaseError(BaseAPIException):
+class SupabaseError(BaseAPIError):
     """Raised when Supabase operation fails."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
-        super().__init__(
-            message=f"Supabase error: {message}", status_code=502, details=details
-        )
+        super().__init__(message=f"Supabase error: {message}", status_code=502, details=details)
 
 
-class RateLimitExceededError(BaseAPIException):
+class RateLimitExceededError(BaseAPIError):
     """Raised when rate limit is exceeded."""
 
     def __init__(
@@ -105,14 +101,14 @@ class RateLimitExceededError(BaseAPIException):
         super().__init__(message=message, status_code=429, details=details)
 
 
-class FileUploadError(BaseAPIException):
+class FileUploadError(BaseAPIError):
     """Raised when file upload fails."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
         super().__init__(message=message, status_code=400, details=details)
 
 
-class DocumentProcessingError(BaseAPIException):
+class DocumentProcessingError(BaseAPIError):
     """Raised when document processing fails."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:

@@ -4,6 +4,7 @@ Authentication endpoints.
 Provides user authentication, registration, and token management.
 """
 
+from datetime import UTC
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -15,9 +16,8 @@ from app.core.logging import get_logger
 from app.core.security import (
     create_access_token,
     create_refresh_token,
-    get_password_hash,
-    verify_password,
 )
+from app.db.models.audit_log import AuditAction
 from app.db.models.user import User
 from app.schemas.auth import LoginRequest, LoginResponse, TokenResponse, UserResponse
 from app.services.audit_service import AuditService
@@ -75,7 +75,7 @@ async def login(
         # Update last login
         from datetime import datetime
 
-        user.last_login_at = datetime.utcnow()
+        user.last_login_at = datetime.now(UTC)
         await db.commit()
 
         # Log audit trail
@@ -104,7 +104,7 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed",
-        )
+        ) from e
 
 
 @router.get("/me", response_model=UserResponse)
@@ -144,7 +144,7 @@ async def logout(
     audit_service = AuditService()
     await audit_service.log_action(
         db=db,
-        action="logout",
+        action=AuditAction.LOGOUT,
         description=f"User logout: {current_user.email}",
         user_id=current_user.id,
     )

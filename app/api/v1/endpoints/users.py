@@ -5,14 +5,14 @@ Provides admin-level user management including listing,
 role management, and activity monitoring.
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import get_current_admin, get_current_user, get_db
+from app.api.dependencies import get_current_admin, get_db
 from app.core.logging import get_logger
 from app.db.models.user import User, UserRole
 from app.schemas.auth import UserResponse, UserUpdate
@@ -174,7 +174,7 @@ async def get_user_activity(
     current_user: Annotated[User, Depends(get_current_admin)],
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
-) -> dict:
+) -> dict[str, Any]:
     """
     Get user activity log.
 

@@ -6,10 +6,11 @@ enabling configuration through environment variables with type validation.
 Settings are loaded from .env files and environment variables.
 """
 
+import json
 from functools import lru_cache
-from typing import Any, ClassVar
+from typing import Any
 
-from pydantic import Field, PostgresDsn, field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,9 +30,7 @@ class Settings(BaseSettings):
     )
 
     # Application Settings
-    APP_NAME: str = Field(
-        default="Fambanasi Docs Engine API", description="Application name"
-    )
+    APP_NAME: str = Field(default="Fambanasi Docs Engine API", description="Application name")
     APP_VERSION: str = Field(default="1.0.0", description="Application version")
     DEBUG: bool = Field(default=False, description="Debug mode flag")
     ENVIRONMENT: str = Field(
@@ -40,7 +39,7 @@ class Settings(BaseSettings):
     )
 
     # Server Settings
-    HOST: str = Field(default="0.0.0.0", description="Server host")
+    HOST: str = Field(default="0.0.0.0", description="Server host")  # noqa: S104
     PORT: int = Field(default=8000, description="Server port")
     API_V1_PREFIX: str = Field(default="/api/v1", description="API v1 route prefix")
 
@@ -59,69 +58,39 @@ class Settings(BaseSettings):
         default=["http://localhost:3000", "http://localhost:3001"],
         description="Allowed CORS origins",
     )
-    CORS_ALLOW_CREDENTIALS: bool = Field(
-        default=True, description="Allow credentials in CORS"
-    )
-    CORS_ALLOW_METHODS: list[str] = Field(
-        default=["*"], description="Allowed HTTP methods"
-    )
-    CORS_ALLOW_HEADERS: list[str] = Field(
-        default=["*"], description="Allowed HTTP headers"
-    )
+    CORS_ALLOW_CREDENTIALS: bool = Field(default=True, description="Allow credentials in CORS")
+    CORS_ALLOW_METHODS: list[str] = Field(default=["*"], description="Allowed HTTP methods")
+    CORS_ALLOW_HEADERS: list[str] = Field(default=["*"], description="Allowed HTTP headers")
 
-    # Database Settings (Supabase PostgreSQL)
-    DATABASE_URL: PostgresDsn = Field(
-        ..., description="PostgreSQL database URL from Supabase"
-    )
-    DATABASE_POOL_SIZE: int = Field(
-        default=20, description="Database connection pool size"
-    )
-    DATABASE_MAX_OVERFLOW: int = Field(
-        default=10, description="Max overflow connections"
-    )
-    DATABASE_ECHO: bool = Field(
-        default=False, description="Echo SQL queries (dev only)"
-    )
+    # Database Settings
+    DATABASE_URL: str = Field(..., description="Database connection URL (PostgreSQL or SQLite)")
+    DATABASE_POOL_SIZE: int = Field(default=20, description="Database connection pool size")
+    DATABASE_MAX_OVERFLOW: int = Field(default=10, description="Max overflow connections")
+    DATABASE_ECHO: bool = Field(default=False, description="Echo SQL queries (dev only)")
 
     # Supabase Settings
     SUPABASE_URL: str = Field(..., description="Supabase project URL")
     SUPABASE_ANON_KEY: str = Field(..., description="Supabase anonymous/public key")
-    SUPABASE_SERVICE_KEY: str = Field(
-        ..., description="Supabase service role key (private)"
-    )
-    SUPABASE_JWT_SECRET: str = Field(
-        ..., description="Supabase JWT secret for token validation"
-    )
+    SUPABASE_SERVICE_KEY: str = Field(..., description="Supabase service role key (private)")
+    SUPABASE_JWT_SECRET: str = Field(..., description="Supabase JWT secret for token validation")
     SUPABASE_BUCKET_NAME: str = Field(
         default="docs-media", description="Supabase storage bucket for media"
     )
 
     # GitHub Settings
-    GITHUB_TOKEN: str = Field(
-        ..., description="GitHub Personal Access Token with repo permissions"
-    )
+    GITHUB_TOKEN: str = Field(..., description="GitHub Personal Access Token with repo permissions")
     GITHUB_OWNER: str = Field(..., description="GitHub repository owner/organization")
-    GITHUB_REPO: str = Field(
-        ..., description="GitHub repository name (fambanasi-docs-content)"
-    )
+    GITHUB_REPO: str = Field(..., description="GitHub repository name (fambanasi-docs-content)")
     GITHUB_BRANCH: str = Field(default="main", description="Default branch for commits")
-    GITHUB_WEBHOOK_SECRET: str = Field(
-        ..., description="Secret for validating GitHub webhooks"
-    )
+    GITHUB_WEBHOOK_SECRET: str = Field(..., description="Secret for validating GitHub webhooks")
 
     # Redis Settings (for caching and rate limiting)
-    REDIS_URL: str = Field(
-        default="redis://localhost:6379/0", description="Redis connection URL"
-    )
-    REDIS_CACHE_TTL: int = Field(
-        default=3600, description="Cache TTL in seconds (1 hour)"
-    )
+    REDIS_URL: str = Field(default="redis://localhost:6379/0", description="Redis connection URL")
+    REDIS_CACHE_TTL: int = Field(default=3600, description="Cache TTL in seconds (1 hour)")
 
     # Rate Limiting
     RATE_LIMIT_ENABLED: bool = Field(default=True, description="Enable rate limiting")
-    RATE_LIMIT_PER_MINUTE: int = Field(
-        default=100, description="Max requests per minute per user"
-    )
+    RATE_LIMIT_PER_MINUTE: int = Field(default=100, description="Max requests per minute per user")
 
     # File Upload Settings
     MAX_UPLOAD_SIZE: int = Field(
@@ -153,14 +122,10 @@ class Settings(BaseSettings):
         default="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         description="Log message format",
     )
-    LOG_FILE: str | None = Field(
-        default=None, description="Log file path (None for stdout only)"
-    )
+    LOG_FILE: str | None = Field(default=None, description="Log file path (None for stdout only)")
 
     # Monitoring & Observability
-    SENTRY_DSN: str | None = Field(
-        default=None, description="Sentry DSN for error tracking"
-    )
+    SENTRY_DSN: str | None = Field(default=None, description="Sentry DSN for error tracking")
     ENABLE_METRICS: bool = Field(default=True, description="Enable Prometheus metrics")
 
     @field_validator("CORS_ORIGINS", mode="before")
@@ -169,7 +134,24 @@ class Settings(BaseSettings):
         """Parse CORS origins from string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
-        return v
+        return list(v)
+
+    @field_validator("ALLOWED_IMAGE_TYPES", "ALLOWED_DOCUMENT_TYPES", mode="before")
+    @classmethod
+    def parse_allowed_types(cls, v: Any) -> list[str]:
+        """Parse allowed MIME types from JSON array or comma-separated string."""
+        if isinstance(v, str):
+            s = v.strip()
+            if not s:
+                return []
+            if s.startswith("["):
+                try:
+                    return list(json.loads(s))
+                except Exception:  # noqa: S110
+                    # Log error or ignore
+                    pass
+            return [item.strip() for item in s.split(",") if item.strip()]
+        return list(v) if isinstance(v, (list, tuple)) else []
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

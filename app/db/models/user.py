@@ -5,17 +5,18 @@ Stores user information synced from Supabase Auth, including roles
 and permissions for role-based access control.
 """
 
+import uuid
 from datetime import datetime
-from enum import Enum as PyEnum
+from enum import StrEnum
+from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Enum, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, DateTime, Enum, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
 
 
-class UserRole(str, PyEnum):
+class UserRole(StrEnum):
     """User roles for role-based access control."""
 
     VIEWER = "viewer"  # Can only view documentation
@@ -34,8 +35,8 @@ class User(Base, TimestampMixin):
     __tablename__ = "users"
 
     # Primary key (matches Supabase Auth UUID)
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, doc="User ID from Supabase Auth"
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, doc="User ID from Supabase Auth"
     )
 
     # User information
@@ -75,7 +76,7 @@ class User(Base, TimestampMixin):
     )
 
     # User preferences (JSON)
-    preferences: Mapped[dict | None] = mapped_column(
+    preferences: Mapped[dict[str, Any] | None] = mapped_column(
         Text, nullable=True, doc="User preferences as JSON string"
     )
 

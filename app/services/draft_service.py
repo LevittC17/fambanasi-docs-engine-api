@@ -5,18 +5,19 @@ Handles draft creation, editing, review workflow, and publishing
 to the Git repository.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ResourceNotFoundError, ValidationError
 from app.core.logging import get_logger
+from app.db.models.audit_log import AuditAction
 from app.db.models.draft import Draft, DraftStatus
 from app.db.models.user import User, UserRole
-from app.schemas.draft import DraftCreate, DraftResponse, DraftStatusUpdate, DraftUpdate
+from app.schemas.draft import DraftCreate, DraftStatusUpdate, DraftUpdate
 from app.services.audit_service import AuditService
 from app.services.document_service import DocumentService
 from app.utils.file_helpers import generate_slug
@@ -85,7 +86,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="draft_create",
+                action=AuditAction.DRAFT_CREATE,
                 description=f"Created draft: {draft.title}",
                 user_id=author.id,
                 resource_type="draft",
@@ -179,7 +180,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="draft_update",
+                action=AuditAction.DRAFT_UPDATE,
                 description=f"Updated draft: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",
@@ -224,7 +225,7 @@ class DraftService:
             # Log audit trail before deletion
             await self.audit.log_action(
                 db=db,
-                action="draft_delete",
+                action=AuditAction.DRAFT_DELETE,
                 description=f"Deleted draft: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",
@@ -273,15 +274,13 @@ class DraftService:
 
             # Check current status
             if draft.status != DraftStatus.DRAFT:
-                raise ValidationError(
-                    f"Cannot submit draft with status: {draft.status}"
-                )
+                raise ValidationError(f"Cannot submit draft with status: {draft.status}")
 
             logger.info(f"Submitting draft for review: {draft_id}")
 
             # Update status
             draft.status = DraftStatus.IN_REVIEW
-            draft.submitted_at = datetime.utcnow()
+            draft.submitted_at = datetime.now(UTC)
             draft.reviewer_id = reviewer_id
 
             await db.commit()
@@ -290,7 +289,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="draft_submit",
+                action=AuditAction.DRAFT_SUBMIT,
                 description=f"Submitted draft for review: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",
@@ -337,16 +336,14 @@ class DraftService:
 
             # Check current status
             if draft.status != DraftStatus.IN_REVIEW:
-                raise ValidationError(
-                    f"Cannot review draft with status: {draft.status}"
-                )
+                raise ValidationError(f"Cannot review draft with status: {draft.status}")
 
             logger.info(f"Updating draft status: {draft_id} -> {status_update.status}")
 
             # Update status
             draft.status = status_update.status
             draft.reviewer_id = reviewer.id
-            draft.reviewed_at = datetime.utcnow()
+            draft.reviewed_at = datetime.now(UTC)
             draft.review_comments = status_update.review_comments
 
             await db.commit()
@@ -354,9 +351,9 @@ class DraftService:
 
             # Log audit trail
             action = (
-                "draft_approve"
+                AuditAction.DRAFT_APPROVE
                 if status_update.status == DraftStatus.APPROVED
-                else "draft_reject"
+                else AuditAction.DRAFT_REJECT
             )
             await self.audit.log_action(
                 db=db,
@@ -412,9 +409,7 @@ class DraftService:
 
             # Check status
             if draft.status not in [DraftStatus.APPROVED, DraftStatus.DRAFT]:
-                raise ValidationError(
-                    f"Cannot publish draft with status: {draft.status}"
-                )
+                raise ValidationError(f"Cannot publish draft with status: {draft.status}")
 
             logger.info(f"Publishing draft: {draft_id} to {draft.target_path}")
 
@@ -448,7 +443,7 @@ class DraftService:
 
             # Update draft status
             draft.status = DraftStatus.APPROVED  # Keep as approved
-            draft.published_at = datetime.utcnow()
+            draft.published_at = datetime.now(UTC)
 
             await db.commit()
             await db.refresh(draft)
@@ -456,7 +451,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="document_publish",
+                action=AuditAction.DOCUMENT_PUBLISH,
                 description=f"Published draft to document: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",
@@ -508,9 +503,7 @@ class DraftService:
             stmt = stmt.where(Draft.status == status)
 
         # Get total count
-        count_result = await db.execute(
-            select(func.count()).select_from(stmt.subquery())
-        )
+        count_result = await db.execute(select(func.count()).select_from(stmt.subquery()))
         total = count_result.scalar()
 
         # Apply pagination and ordering

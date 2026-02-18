@@ -5,17 +5,23 @@ Drafts are stored in the database rather than Git, allowing users
 to work on content without committing to the repository.
 """
 
-from datetime import datetime
-from enum import Enum as PyEnum
+from __future__ import annotations
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from datetime import datetime
+from enum import StrEnum
+from typing import TYPE_CHECKING
+
+from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
 
+if TYPE_CHECKING:
+    from app.db.models.user import User
 
-class DraftStatus(str, PyEnum):
+
+class DraftStatus(StrEnum):
     """Status of a draft document."""
 
     DRAFT = "draft"  # Work in progress
@@ -35,10 +41,10 @@ class Draft(Base, TimestampMixin):
     __tablename__ = "drafts"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         primary_key=True,
-        server_default="gen_random_uuid()",
+        default=uuid.uuid4,
         doc="Draft unique identifier",
     )
 
@@ -58,9 +64,7 @@ class Draft(Base, TimestampMixin):
     )
 
     # Content
-    content: Mapped[str] = mapped_column(
-        Text, nullable=False, doc="Markdown content of the draft"
-    )
+    content: Mapped[str] = mapped_column(Text, nullable=False, doc="Markdown content of the draft")
 
     frontmatter: Mapped[str | None] = mapped_column(
         Text, nullable=True, doc="YAML frontmatter metadata"
@@ -76,16 +80,16 @@ class Draft(Base, TimestampMixin):
     )
 
     # Authorship and review
-    author_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
+    author_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
-        doc="Draft author user ID",
+        doc="Author of the draft",
     )
 
-    reviewer_id: Mapped[UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         doc="Reviewer user ID",
@@ -117,13 +121,9 @@ class Draft(Base, TimestampMixin):
     )
 
     # Relationships
-    author: Mapped["User"] = relationship(
-        "User", foreign_keys=[author_id], lazy="joined"
-    )
+    author: Mapped[User] = relationship("User", foreign_keys=[author_id], lazy="joined")
 
-    reviewer: Mapped["User | None"] = relationship(
-        "User", foreign_keys=[reviewer_id], lazy="joined"
-    )
+    reviewer: Mapped[User | None] = relationship("User", foreign_keys=[reviewer_id], lazy="joined")
 
     def __repr__(self) -> str:
         """String representation of draft."""

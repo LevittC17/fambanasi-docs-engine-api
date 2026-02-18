@@ -7,7 +7,6 @@ multiple handlers, and integration with monitoring services.
 
 import logging
 import sys
-from typing import Any
 
 from app.core.config import settings
 

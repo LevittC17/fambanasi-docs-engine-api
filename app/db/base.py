@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import DateTime, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -23,13 +23,12 @@ class Base(DeclarativeBase):
     """
 
     # Generate __tablename__ automatically from class name
+    @declared_attr.directive
     @classmethod
     def __tablename__(cls) -> str:
         """Generate table name from class name (snake_case)."""
         name = cls.__name__
-        return "".join(["_" + c.lower() if c.isupper() else c for c in name]).lstrip(
-            "_"
-        )
+        return "".join(["_" + c.lower() if c.isupper() else c for c in name]).lstrip("_")
 
     def to_dict(self) -> dict[str, Any]:
         """
@@ -38,9 +37,7 @@ class Base(DeclarativeBase):
         Returns:
             Dictionary representation of the model
         """
-        return {
-            column.name: getattr(self, column.name) for column in self.__table__.columns
-        }
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
 
 
 class TimestampMixin:

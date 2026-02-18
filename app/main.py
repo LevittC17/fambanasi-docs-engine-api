@@ -5,8 +5,10 @@ Initializes the FastAPI app with all middleware, routers, and
 lifecycle event handlers for database and external services.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from datetime import UTC
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,7 +28,7 @@ logger = get_logger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     """
     Application lifespan context manager.
 
@@ -137,9 +139,9 @@ async def health_check() -> JSONResponse:
     from app.services.github_service import GitHubService
     from app.services.supabase_service import SupabaseService
 
-    health_status = {
+    health_status: dict[str, Any] = {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "version": settings.APP_VERSION,
         "environment": settings.ENVIRONMENT,
         "services": {},
@@ -147,10 +149,12 @@ async def health_check() -> JSONResponse:
 
     # Check database
     try:
+        from sqlalchemy import text
+
         from app.db.session import engine
 
         async with engine.connect() as conn:
-            await conn.execute("SELECT 1")
+            await conn.execute(text("SELECT 1"))
         health_status["services"]["database"] = "healthy"
     except Exception as e:
         logger.error(f"Database health check failed: {e}")

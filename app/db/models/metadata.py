@@ -5,8 +5,10 @@ Stores metadata extracted from document frontmatter and used for
 Pagefind search indexing and filtering.
 """
 
-from sqlalchemy import ARRAY, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from typing import Any
+
+from sqlalchemy import JSON, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
@@ -23,10 +25,10 @@ class DocumentMetadata(Base, TimestampMixin):
     __tablename__ = "document_metadata"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         primary_key=True,
-        server_default="gen_random_uuid()",
+        default=uuid.uuid4,
         doc="Metadata record ID",
     )
 
@@ -56,7 +58,7 @@ class DocumentMetadata(Base, TimestampMixin):
     )
 
     tags: Mapped[list[str] | None] = mapped_column(
-        ARRAY(String), nullable=True, doc="Array of tags for filtering"
+        JSON, nullable=True, doc="Array of tags for filtering"
     )
 
     team: Mapped[str | None] = mapped_column(
@@ -71,9 +73,7 @@ class DocumentMetadata(Base, TimestampMixin):
         Text, nullable=True, doc="Short description or excerpt"
     )
 
-    author: Mapped[str | None] = mapped_column(
-        String(255), nullable=True, doc="Document author"
-    )
+    author: Mapped[str | None] = mapped_column(String(255), nullable=True, doc="Document author")
 
     # Version information
     version: Mapped[str | None] = mapped_column(
@@ -90,16 +90,14 @@ class DocumentMetadata(Base, TimestampMixin):
     )
 
     # Search optimization
-    word_count: Mapped[int | None] = mapped_column(
-        nullable=True, doc="Approximate word count"
-    )
+    word_count: Mapped[int | None] = mapped_column(nullable=True, doc="Approximate word count")
 
     reading_time: Mapped[int | None] = mapped_column(
         nullable=True, doc="Estimated reading time in minutes"
     )
 
     # Additional metadata (flexible JSON)
-    custom_fields: Mapped[dict | None] = mapped_column(
+    custom_fields: Mapped[dict[str, Any] | None] = mapped_column(
         Text, nullable=True, doc="Additional custom metadata as JSON string"
     )
 

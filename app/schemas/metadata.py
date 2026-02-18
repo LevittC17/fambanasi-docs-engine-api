@@ -6,6 +6,7 @@ used in search indexing and categorization.
 """
 
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -32,7 +33,7 @@ class MetadataCreate(MetadataBase):
     git_url: str | None = None
     word_count: int | None = None
     reading_time: int | None = None
-    custom_fields: dict | None = None
+    custom_fields: dict[str, Any] | None = None
 
 
 class MetadataUpdate(BaseModel):
@@ -50,7 +51,7 @@ class MetadataUpdate(BaseModel):
     git_url: str | None = None
     word_count: int | None = None
     reading_time: int | None = None
-    custom_fields: dict | None = None
+    custom_fields: dict[str, Any] | None = None
 
 
 class DocumentMetadataResponse(MetadataBase):
@@ -67,7 +68,7 @@ class DocumentMetadataResponse(MetadataBase):
     git_url: str | None
     word_count: int | None
     reading_time: int | None
-    custom_fields: dict | None
+    custom_fields: dict[str, Any] | None
     created_at: datetime
     updated_at: datetime
 
@@ -83,21 +84,15 @@ class MetadataSearchQuery(BaseModel):
     team: str | None = Field(None, description="Filter by team")
     author: str | None = Field(None, description="Filter by author")
     version: str | None = Field(None, description="Filter by version")
-    limit: int = Field(
-        default=50, ge=1, le=100, description="Maximum results to return"
-    )
+    limit: int = Field(default=50, ge=1, le=100, description="Maximum results to return")
     offset: int = Field(default=0, ge=0, description="Offset for pagination")
 
 
 class MetadataBulkUpdate(BaseModel):
     """Schema for bulk metadata updates."""
 
-    file_paths: list[str] = Field(
-        ..., min_length=1, description="List of file paths to update"
-    )
-    updates: MetadataUpdate = Field(
-        ..., description="Updates to apply to all specified documents"
-    )
+    file_paths: list[str] = Field(..., min_length=1, description="List of file paths to update")
+    updates: MetadataUpdate = Field(..., description="Updates to apply to all specified documents")
 
 
 class MetadataStatsResponse(BaseModel):

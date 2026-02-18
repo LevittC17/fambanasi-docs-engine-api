@@ -7,6 +7,7 @@ cache invalidation, and CI/CD pipeline triggers.
 
 import hashlib
 import hmac
+from datetime import UTC
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
@@ -52,7 +53,7 @@ def verify_github_signature(payload_body: bytes, signature_header: str | None) -
 
 
 @router.post("/github", response_model=WebhookResponse)
-async def handle_github_webhook(
+async def handle_github_webhook(  # noqa: C901
     request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
     x_hub_signature_256: Annotated[str | None, Header()] = None,
@@ -101,7 +102,7 @@ async def handle_github_webhook(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid JSON payload: {e}",
-        )
+        ) from e
 
     # Handle ping event (sent when webhook is first created)
     if x_github_event == "ping":
@@ -111,7 +112,7 @@ async def handle_github_webhook(
             message="Ping received successfully",
             affected_files=[],
             rebuild_triggered=False,
-            processed_at=datetime.utcnow(),
+            processed_at=datetime.now(UTC),
         )
 
     # Process push events only
@@ -122,7 +123,7 @@ async def handle_github_webhook(
             message=f"Event type '{x_github_event}' acknowledged but not processed",
             affected_files=[],
             rebuild_triggered=False,
-            processed_at=datetime.utcnow(),
+            processed_at=datetime.now(UTC),
         )
 
     # Parse push payload
@@ -133,7 +134,7 @@ async def handle_github_webhook(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Invalid webhook payload: {e}",
-        )
+        ) from e
 
     # Only process pushes to main branch
     if not payload.is_main_branch:
@@ -143,14 +144,13 @@ async def handle_github_webhook(
             message=f"Push to '{payload.branch_name}' acknowledged but not processed",
             affected_files=[],
             rebuild_triggered=False,
-            processed_at=datetime.utcnow(),
+            processed_at=datetime.now(UTC),
         )
 
     # Get affected documentation files
     affected_docs = payload.affected_docs
     logger.info(
-        f"Webhook received: {len(affected_docs)} docs affected. "
-        f"Pusher: {payload.pusher.name}"
+        f"Webhook received: {len(affected_docs)} docs affected. " f"Pusher: {payload.pusher.name}"
     )
 
     # Process each affected file

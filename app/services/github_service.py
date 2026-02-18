@@ -6,12 +6,10 @@ commits, branch management, and webhook processing.
 """
 
 import base64
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
-from github import Github, GithubException, Repository
-from github.ContentFile import ContentFile
-from github.GitCommit import GitCommit
+from github import Auth, Github, GithubException, GithubObject, Repository
 
 from app.core.config import settings
 from app.core.exceptions import GitHubAPIError, ResourceNotFoundError
@@ -32,7 +30,8 @@ class GitHubService:
     def __init__(self) -> None:
         """Initialize GitHub service with authentication."""
         try:
-            self._client = Github(settings.GITHUB_TOKEN)
+            auth = Auth.Token(settings.GITHUB_TOKEN)
+            self._client = Github(auth=auth)
             self._repo: Repository.Repository = self._client.get_repo(
                 f"{settings.GITHUB_OWNER}/{settings.GITHUB_REPO}"
             )
@@ -43,7 +42,7 @@ class GitHubService:
             logger.error(f"Failed to initialize GitHub service: {e}")
             raise GitHubAPIError(
                 message="Failed to connect to GitHub", details={"error": str(e)}
-            )
+            ) from e
 
     def _get_full_path(self, path: str) -> str:
         """
@@ -86,7 +85,7 @@ class GitHubService:
             logger.info(f"Fetching file: {full_path} from {branch}")
 
             # Get file content
-            file_content: ContentFile = self._repo.get_contents(full_path, ref=branch)
+            file_content = self._repo.get_contents(full_path, ref=branch)
 
             if isinstance(file_content, list):
                 raise GitHubAPIError(message=f"Path is a directory, not a file: {path}")
@@ -105,22 +104,18 @@ class GitHubService:
                 "sha": file_content.sha,
                 "size": file_content.size,
                 "url": file_content.html_url,
-                "last_modified": last_commit.commit.author.date
-                if last_commit
-                else None,
-                "last_commit": self._format_commit_info(last_commit)
-                if last_commit
-                else None,
+                "last_modified": last_commit.commit.author.date if last_commit else None,
+                "last_commit": self._format_commit_info(last_commit) if last_commit else None,
             }
 
         except GithubException as e:
             if e.status == 404:
-                raise ResourceNotFoundError("Document", path)
+                raise ResourceNotFoundError("Document", path) from e
             logger.error(f"GitHub API error getting file {path}: {e}")
             raise GitHubAPIError(
                 message=f"Failed to get file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def create_file(
         self,
@@ -182,7 +177,7 @@ class GitHubService:
             raise GitHubAPIError(
                 message=f"Failed to create file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def update_file(
         self,
@@ -246,12 +241,12 @@ class GitHubService:
 
         except GithubException as e:
             if e.status == 404:
-                raise ResourceNotFoundError("Document", path)
+                raise ResourceNotFoundError("Document", path) from e
             logger.error(f"GitHub API error updating file {path}: {e}")
             raise GitHubAPIError(
                 message=f"Failed to update file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def delete_file(
         self,
@@ -307,12 +302,12 @@ class GitHubService:
 
         except GithubException as e:
             if e.status == 404:
-                raise ResourceNotFoundError("Document", path)
+                raise ResourceNotFoundError("Document", path) from e
             logger.error(f"GitHub API error deleting file {path}: {e}")
             raise GitHubAPIError(
                 message=f"Failed to delete file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def move_file(
         self,
@@ -349,9 +344,7 @@ class GitHubService:
 
             # Generate commit message if not provided
             if not message:
-                message = generate_commit_message(
-                    action="move", path=old_path, new_path=new_path
-                )
+                message = generate_commit_message(action="move", path=old_path, new_path=new_path)
 
             logger.info(f"Moving file: {old_path} -> {new_path}")
 
@@ -403,9 +396,7 @@ class GitHubService:
             GitHubAPIError: If listing fails
         """
         try:
-            full_path = (
-                self._get_full_path(directory) if directory else settings.DOCS_ROOT_PATH
-            )
+            full_path = self._get_full_path(directory) if directory else settings.DOCS_ROOT_PATH
             branch = branch or settings.GITHUB_BRANCH
 
             logger.info(f"Listing files in: {full_path}")
@@ -419,13 +410,15 @@ class GitHubService:
 
             for item in contents:
                 if item.type == "file":
-                    files.append({
-                        "path": item.path.replace(f"{settings.DOCS_ROOT_PATH}/", ""),
-                        "name": item.name,
-                        "size": item.size,
-                        "sha": item.sha,
-                        "url": item.html_url,
-                    })
+                    files.append(
+                        {
+                            "path": item.path.replace(f"{settings.DOCS_ROOT_PATH}/", ""),
+                            "name": item.name,
+                            "size": item.size,
+                            "sha": item.sha,
+                            "url": item.html_url,
+                        }
+                    )
                 elif item.type == "dir" and recursive:
                     # Recursively list subdirectory
                     subdir_files = await self.list_files(
@@ -442,7 +435,7 @@ class GitHubService:
             raise GitHubAPIError(
                 message=f"Failed to list files in: {directory}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def get_commit_history(
         self,
@@ -472,7 +465,7 @@ class GitHubService:
 
             commits = self._repo.get_commits(
                 sha=branch,
-                path=full_path,
+                path=full_path if full_path else GithubObject.NotSet,
             )
 
             commit_list = []
@@ -488,7 +481,7 @@ class GitHubService:
             raise GitHubAPIError(
                 message="Failed to fetch commit history",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def create_branch(
         self, branch_name: str, from_branch: str | None = None
@@ -516,9 +509,7 @@ class GitHubService:
             source_sha = source_ref.object.sha
 
             # Create new branch
-            new_ref = self._repo.create_git_ref(
-                ref=f"refs/heads/{branch_name}", sha=source_sha
-            )
+            new_ref = self._repo.create_git_ref(ref=f"refs/heads/{branch_name}", sha=source_sha)
 
             return {
                 "branch": branch_name,
@@ -531,9 +522,9 @@ class GitHubService:
             raise GitHubAPIError(
                 message=f"Failed to create branch: {branch_name}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
-    def _format_commit_info(self, commit: GitCommit) -> dict[str, Any]:
+    def _format_commit_info(self, commit: Any) -> dict[str, Any]:
         """
         Format commit information for API response.
 
@@ -581,7 +572,7 @@ class GitHubService:
 
         return None
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:  # noqa: C901
         """
         Check GitHub API connectivity and rate limits.
 
@@ -591,18 +582,51 @@ class GitHubService:
         try:
             rate_limit = self._client.get_rate_limit()
 
+            # Support multiple shapes returned by PyGithub across versions.
+            core = getattr(rate_limit, "core", None)
+            remaining = limit = reset = None
+
+            if core is not None:
+                remaining = getattr(core, "remaining", None)
+                limit = getattr(core, "limit", None)
+                reset = getattr(core, "reset", None)
+            else:
+                # Try raw_data (dict) shape: {"resources": {"core": {...}}}
+                raw = getattr(rate_limit, "raw_data", None)
+                if isinstance(raw, dict):
+                    core = raw.get("resources", {}).get("core")
+                    if core:
+                        remaining = core.get("remaining")
+                        limit = core.get("limit")
+                        reset = core.get("reset")
+                elif isinstance(rate_limit, dict):
+                    core = rate_limit.get("resources", {}).get("core")
+                    if core:
+                        remaining = core.get("remaining")
+                        limit = core.get("limit")
+                        reset = core.get("reset")
+
+            # Normalize reset to ISO string
+            reset_iso = None
+            if isinstance(reset, (int, float)):
+                reset_iso = datetime.fromtimestamp(reset, tz=UTC).isoformat()
+            elif hasattr(reset, "isoformat"):
+                try:
+                    reset_iso = reset.isoformat()  # type: ignore[union-attr]
+                except Exception:
+                    reset_iso = str(reset)
+            elif reset is not None:
+                reset_iso = str(reset)
+
             return {
                 "status": "healthy",
                 "repository": f"{settings.GITHUB_OWNER}/{settings.GITHUB_REPO}",
                 "rate_limit": {
-                    "remaining": rate_limit.core.remaining,
-                    "limit": rate_limit.core.limit,
-                    "reset": rate_limit.core.reset.isoformat(),
+                    "remaining": remaining if remaining is not None else "unknown",
+                    "limit": limit if limit is not None else "unknown",
+                    "reset": reset_iso,
                 },
             }
         except Exception as e:
             logger.error(f"GitHub health check failed: {e}")
-            return {
-                "status": "unhealthy",
-                "error": str(e),
-            }
+            return {"status": "unhealthy", "error": str(e)}

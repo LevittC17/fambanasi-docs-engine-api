@@ -5,17 +5,23 @@ Maintains comprehensive audit trail of user actions, document changes,
 and system events for compliance and troubleshooting.
 """
 
-from datetime import datetime
-from enum import Enum as PyEnum
+from __future__ import annotations
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+import uuid
+from datetime import datetime
+from enum import StrEnum
+from typing import TYPE_CHECKING, Any
+
+from sqlalchemy import JSON, DateTime, Enum, ForeignKey, String, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
+if TYPE_CHECKING:
+    from app.db.models.user import User
 
-class AuditAction(str, PyEnum):
+
+class AuditAction(StrEnum):
     """Types of auditable actions."""
 
     # Authentication
@@ -27,6 +33,7 @@ class AuditAction(str, PyEnum):
     DOCUMENT_UPDATE = "document_update"
     DOCUMENT_DELETE = "document_delete"
     DOCUMENT_PUBLISH = "document_publish"
+    DOCUMENT_MOVE = "document_move"
 
     # Draft operations
     DRAFT_CREATE = "draft_create"
@@ -61,25 +68,25 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         primary_key=True,
-        server_default="gen_random_uuid()",
+        default=uuid.uuid4,
         doc="Audit log entry ID",
     )
 
     # Timestamp (not using TimestampMixin as we only need created_at)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default="now()",
+        server_default=func.now(),
         nullable=False,
         index=True,
         doc="When the action occurred",
     )
 
     # User information
-    user_id: Mapped[UUID | None] = mapped_column(
-        UUID(as_uuid=True),
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -124,17 +131,22 @@ class AuditLog(Base):
         Text, nullable=False, doc="Human-readable description of the action"
     )
 
-    metadata: Mapped[dict | None] = mapped_column(
-        JSONB, nullable=True, doc="Additional metadata about the action (JSON)"
+    # 'metadata' is reserved by SQLAlchemy's Declarative API, use attribute
+    # name `metadata_` while keeping the DB column name as 'metadata'.
+    metadata_: Mapped[dict[str, Any] | None] = mapped_column(
+        "metadata",
+        JSON,
+        nullable=True,
+        doc="Additional metadata about the action (JSON)",
     )
 
     # Before/after state for changes
-    old_value: Mapped[dict | None] = mapped_column(
-        JSONB, nullable=True, doc="State before the change (for updates/deletes)"
+    old_value: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON, nullable=True, doc="State before the change (for updates/deletes)"
     )
 
-    new_value: Mapped[dict | None] = mapped_column(
-        JSONB, nullable=True, doc="State after the change (for creates/updates)"
+    new_value: Mapped[dict[str, Any] | None] = mapped_column(
+        JSON, nullable=True, doc="State after the change (for creates/updates)"
     )
 
     # Error tracking
@@ -147,7 +159,7 @@ class AuditLog(Base):
     )
 
     # Relationships
-    user: Mapped["User | None"] = relationship("User", lazy="joined")
+    user: Mapped[User | None] = relationship("User", lazy="joined")
 
     def __repr__(self) -> str:
         """String representation of audit log."""

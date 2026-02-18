@@ -6,15 +6,15 @@ logs errors, and optionally sends to monitoring services.
 """
 
 import traceback
-from datetime import datetime
-from typing import Callable
+from collections.abc import Awaitable, Callable
+from datetime import UTC, datetime
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import settings
-from app.core.exceptions import BaseAPIException
+from app.core.exceptions import BaseAPIError
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -22,46 +22,36 @@ logger = get_logger(__name__)
 
 class ErrorHandlerMiddleware(BaseHTTPMiddleware):
     """
-    Global error handling middleware.
+    Middleware for global exception handling.
 
-    Catches all exceptions, formats them into consistent JSON responses,
-    and logs errors for debugging and monitoring.
+    Catches unhandled exceptions and returns standardized JSON responses.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """
-        Process request with error handling.
+        Dispatch request through middleware chain.
 
         Args:
-            request: Incoming HTTP request
-            call_next: Next middleware or route handler
+            request: Incoming request
+            call_next: Next middleware function
 
         Returns:
-            HTTP response (may be error response)
+            HTTP response
         """
         try:
-            response = await call_next(request)
-            return response
-
-        except BaseAPIException as e:
-            # Handle our custom exceptions
-            logger.warning(
-                f"API exception: {e.message}",
-                extra={
-                    "status_code": e.status_code,
-                    "path": request.url.path,
-                    "method": request.method,
-                    "details": e.details,
-                },
-            )
-
+            return await call_next(request)
+        except BaseAPIError as e:
+            # Handle application-specific exceptions
+            logger.warning(f"API error: {e.message}")
             return JSONResponse(
                 status_code=e.status_code,
                 content={
                     "error": e.message,
                     "details": e.details,
                     "status_code": e.status_code,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "path": request.url.path,
                 },
             )

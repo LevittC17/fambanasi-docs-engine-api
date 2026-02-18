@@ -30,6 +30,22 @@ target_metadata = Base.metadata
 config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
 
 
+def _ensure_async_driver(url: str) -> str:
+    """Ensure the given URL uses the asyncpg driver for async engines.
+
+    Alembic's async_engine_from_config will call create_async_engine which
+    will attempt to import a DBAPI matching the URL. If the URL is a plain
+    'postgresql://' or 'postgres://' URL, make it 'postgresql+asyncpg://'.
+    """
+    if "+" in url:
+        return url
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    return url
+
+
 def run_migrations_offline() -> None:
     """
     Run migrations in 'offline' mode.
@@ -66,7 +82,7 @@ def do_run_migrations(connection: Connection) -> None:
 async def run_async_migrations() -> None:
     """Run migrations in async mode."""
     configuration = config.get_section(config.config_ini_section, {})
-    configuration["sqlalchemy.url"] = str(settings.DATABASE_URL)
+    configuration["sqlalchemy.url"] = _ensure_async_driver(str(settings.DATABASE_URL))
 
     connectable = async_engine_from_config(
         configuration,

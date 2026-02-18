@@ -6,6 +6,7 @@ registration, and profile management.
 """
 
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -24,9 +25,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """Schema for creating a new user."""
 
-    password: str = Field(
-        ..., min_length=8, max_length=100, description="User password"
-    )
+    password: str = Field(..., min_length=8, max_length=100, description="User password")
     role: UserRole = Field(default=UserRole.VIEWER, description="User role")
 
     @field_validator("password")
@@ -51,7 +50,7 @@ class UserUpdate(BaseModel):
     avatar_url: str | None = None
     role: UserRole | None = None
     is_active: bool | None = None
-    preferences: dict | None = None
+    preferences: dict[str, Any] | None = None
 
 
 class UserResponse(UserBase):

@@ -48,9 +48,7 @@ class DocumentCreate(DocumentBase):
         min_length=1,
         description="Target path in Git repository (e.g., 'docs/api/authentication.md')",
     )
-    frontmatter: DocumentFrontmatter | None = Field(
-        None, description="Document metadata"
-    )
+    frontmatter: DocumentFrontmatter | None = Field(None, description="Document metadata")
     commit_message: str | None = Field(
         None,
         max_length=500,
@@ -67,9 +65,7 @@ class DocumentCreate(DocumentBase):
         if v.startswith("/"):
             raise ValueError("Document path should not start with /")
         if ".." in v:
-            raise ValueError(
-                "Document path cannot contain .. (parent directory references)"
-            )
+            raise ValueError("Document path cannot contain .. (parent directory references)")
         return v
 
 
@@ -106,9 +102,7 @@ class DocumentResponse(BaseModel):
     path: str = Field(..., description="Document path in repository")
     title: str = Field(..., description="Document title")
     content: str = Field(..., description="Markdown content")
-    frontmatter: DocumentFrontmatter | None = Field(
-        None, description="Document metadata"
-    )
+    frontmatter: DocumentFrontmatter | None = Field(None, description="Document metadata")
     last_modified: datetime = Field(..., description="Last modification timestamp")
     last_commit: GitCommitInfo | None = Field(None, description="Last Git commit info")
     size: int = Field(..., description="File size in bytes")
@@ -139,12 +133,8 @@ class DocumentSearchResult(BaseModel):
     description: str | None = None
     category: str | None = None
     tags: list[str] = Field(default_factory=list)
-    excerpt: str | None = Field(
-        None, description="Content excerpt with search term highlighted"
-    )
-    relevance_score: float = Field(
-        ..., ge=0.0, le=1.0, description="Search relevance score"
-    )
+    excerpt: str | None = Field(None, description="Content excerpt with search term highlighted")
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Search relevance score")
 
     model_config = {"from_attributes": True}
 
@@ -164,9 +154,7 @@ class DocumentMoveRequest(BaseModel):
         if v.startswith("/"):
             raise ValueError("Document path should not start with /")
         if ".." in v:
-            raise ValueError(
-                "Document path cannot contain .. (parent directory references)"
-            )
+            raise ValueError("Document path cannot contain .. (parent directory references)")
         return v
 
 

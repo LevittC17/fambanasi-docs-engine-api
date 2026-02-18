@@ -21,7 +21,7 @@ class NavigationNode(BaseModel):
     label: str = Field(..., description="Display label for the node")
     path: str = Field(..., description="Full path in Git repository")
     type: str = Field(..., description="Node type: 'folder' or 'document'")
-    children: list["NavigationNode"] = Field(
+    children: list[NavigationNode] = Field(
         default_factory=list, description="Child nodes (empty for documents)"
     )
     order: int = Field(default=0, description="Display order (for manual sorting)")
@@ -49,9 +49,7 @@ class NavigationTree(BaseModel):
     """
 
     root: NavigationNode = Field(..., description="Root node of the navigation tree")
-    total_documents: int = Field(
-        ..., description="Total number of documents in the tree"
-    )
+    total_documents: int = Field(..., description="Total number of documents in the tree")
     total_folders: int = Field(..., description="Total number of folders in the tree")
     last_updated: str = Field(..., description="ISO timestamp of last tree update")
 
@@ -63,9 +61,7 @@ class NavigationUpdateRequest(BaseModel):
 
     path: str = Field(..., description="Path of node to update")
     new_order: int | None = Field(None, description="New display order")
-    new_parent: str | None = Field(
-        None, description="New parent path (for moving nodes)"
-    )
+    new_parent: str | None = Field(None, description="New parent path (for moving nodes)")
     new_label: str | None = Field(None, description="New display label")
 
 
@@ -89,8 +85,6 @@ class BreadcrumbItem(BaseModel):
 class BreadcrumbTrail(BaseModel):
     """Schema for breadcrumb trail."""
 
-    items: list[BreadcrumbItem] = Field(
-        ..., description="Breadcrumb items from root to current"
-    )
+    items: list[BreadcrumbItem] = Field(..., description="Breadcrumb items from root to current")
 
     model_config = {"from_attributes": True}

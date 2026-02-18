@@ -5,11 +5,10 @@ Handles caching, indexing, and querying of document metadata
 for fast search and analytics without hitting Git repository.
 """
 
-from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ResourceNotFoundError
@@ -30,9 +29,7 @@ class MetadataService:
     querying the Git repository for every request.
     """
 
-    async def create_metadata(
-        self, db: AsyncSession, metadata: MetadataCreate
-    ) -> DocumentMetadata:
+    async def create_metadata(self, db: AsyncSession, metadata: MetadataCreate) -> DocumentMetadata:
         """
         Create metadata record for a document.
 
@@ -75,9 +72,7 @@ class MetadataService:
             logger.error(f"Error creating metadata: {e}")
             raise
 
-    async def get_metadata(
-        self, db: AsyncSession, metadata_id: UUID
-    ) -> DocumentMetadata:
+    async def get_metadata(self, db: AsyncSession, metadata_id: UUID) -> DocumentMetadata:
         """
         Get metadata by ID.
 
@@ -174,9 +169,7 @@ class MetadataService:
 
             logger.info(f"Deleting metadata: {metadata_id}")
 
-            await db.execute(
-                delete(DocumentMetadata).where(DocumentMetadata.id == metadata_id)
-            )
+            await db.execute(delete(DocumentMetadata).where(DocumentMetadata.id == metadata_id))
             await db.commit()
 
         except Exception as e:
@@ -258,9 +251,7 @@ class MetadataService:
             logger.info(f"Syncing metadata for: {file_path}")
 
             # Extract or use frontmatter values
-            title = frontmatter.get(
-                "title", file_path.split("/")[-1].replace(".md", "")
-            )
+            title = frontmatter.get("title", file_path.split("/")[-1].replace(".md", ""))
 
             # Calculate content metrics
             plain_text = strip_markdown(content)
@@ -380,7 +371,7 @@ class MetadataService:
                 func.avg(DocumentMetadata.reading_time),
             )
         )
-        avg_word_count, avg_reading_time = avg_result.first()
+        avg_word_count, avg_reading_time = avg_result.one()
 
         # Last updated
         latest_result = await db.execute(select(func.max(DocumentMetadata.updated_at)))

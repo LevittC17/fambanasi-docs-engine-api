@@ -5,7 +5,8 @@ Provides document metadata operations including search, filtering,
 analytics, and bulk updates.
 """
 
-from typing import Annotated
+from datetime import UTC
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
@@ -19,7 +20,6 @@ from app.schemas.metadata import (
     DocumentMetadataResponse,
     MetadataBulkUpdate,
     MetadataCreate,
-    MetadataSearchQuery,
     MetadataStatsResponse,
     MetadataUpdate,
 )
@@ -111,9 +111,11 @@ async def get_metadata_stats(
         tags=stats["tags"],
         avg_word_count=stats["avg_word_count"],
         avg_reading_time=stats["avg_reading_time"],
-        last_updated=datetime.fromisoformat(stats["last_updated"])
-        if stats.get("last_updated")
-        else datetime.utcnow(),
+        last_updated=(
+            datetime.fromisoformat(stats["last_updated"])
+            if stats.get("last_updated")
+            else datetime.now(UTC)
+        ),
     )
 
 
@@ -219,7 +221,7 @@ async def bulk_update_metadata(
     bulk_update: MetadataBulkUpdate,
     current_user: Annotated[User, Depends(get_current_editor)],
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> dict:
+) -> dict[str, Any]:
     """
     Bulk update metadata for multiple documents.
 

@@ -5,7 +5,7 @@ Generates and manages hierarchical navigation structure
 mirroring the Git repository organization.
 """
 
-from typing import Any
+from datetime import UTC
 
 from app.core.logging import get_logger
 from app.schemas.navigation import NavigationNode, NavigationTree
@@ -118,7 +118,7 @@ class NavigationService:
                 root=root,
                 total_documents=total_docs,
                 total_folders=total_folders,
-                last_updated=datetime.utcnow().isoformat(),
+                last_updated=datetime.now(UTC).isoformat(),
             )
 
         except Exception as e:
@@ -177,17 +177,21 @@ class NavigationService:
 
         for part in parts[:-1]:  # Exclude filename
             current_path = f"{current_path}/{part}" if current_path else part
-            breadcrumbs.append({
-                "label": part.replace("-", " ").replace("_", " ").title(),
-                "path": current_path,
-            })
+            breadcrumbs.append(
+                {
+                    "label": part.replace("-", " ").replace("_", " ").title(),
+                    "path": current_path,
+                }
+            )
 
         # Add current document
         if parts:
             filename = parts[-1].replace(".md", "")
-            breadcrumbs.append({
-                "label": filename.replace("-", " ").replace("_", " ").title(),
-                "path": path,
-            })
+            breadcrumbs.append(
+                {
+                    "label": filename.replace("-", " ").replace("_", " ").title(),
+                    "path": path,
+                }
+            )
 
         return breadcrumbs

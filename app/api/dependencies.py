@@ -5,7 +5,8 @@ Provides reusable dependencies for authentication, authorization,
 database access, and other common requirements.
 """
 
-from typing import Annotated
+from collections.abc import Callable, Coroutine
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import Depends, Header, HTTPException, status
@@ -13,12 +14,23 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.core.exceptions import AuthenticationError, AuthorizationError
+from app.core.exceptions import AuthenticationError
 from app.core.logging import get_logger
 from app.core.security import decode_token, verify_supabase_token
 from app.db.models.user import User, UserRole
 from app.db.session import get_db
+
+__all__ = [
+    "get_current_user",
+    "get_current_active_user",
+    "require_role",
+    "get_current_editor",
+    "get_current_admin",
+    "verify_webhook_signature",
+    "get_pagination_params",
+    "get_optional_user",
+    "get_db",
+]
 
 logger = get_logger(__name__)
 
@@ -83,14 +95,14 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
     except Exception as e:
         logger.error(f"Authentication error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 
 
 async def get_current_active_user(
@@ -108,7 +120,7 @@ async def get_current_active_user(
     return current_user
 
 
-async def require_role(required_role: UserRole):
+def require_role(required_role: UserRole) -> Callable[[User], Coroutine[Any, Any, User]]:
     """
     Dependency factory to check user has required role.
 
@@ -170,8 +182,6 @@ async def verify_webhook_signature(
     Raises:
         HTTPException: If signature is missing or invalid
     """
-    import hmac
-    import hashlib
 
     if not x_hub_signature_256 and not x_hub_signature:
         raise HTTPException(
@@ -214,10 +224,8 @@ def get_pagination_params(page: int = 1, page_size: int = 50) -> dict[str, int]:
 
 
 async def get_optional_user(
-    credentials: Annotated[
-        HTTPAuthorizationCredentials | None, Depends(security)
-    ] = None,
-    db: Annotated[AsyncSession, Depends(get_db)] = None,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
+    db: Annotated[AsyncSession, Depends(get_db)] | None = None,
 ) -> User | None:
     """
     Get current user if authenticated, None otherwise.
@@ -235,6 +243,8 @@ async def get_optional_user(
         return None
 
     try:
+        if not db:
+            return None
         return await get_current_user(credentials, db)
     except HTTPException:
         return None

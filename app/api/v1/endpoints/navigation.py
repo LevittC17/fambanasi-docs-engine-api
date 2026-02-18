@@ -5,13 +5,9 @@ Provides folder-aware navigation tree and breadcrumb generation
 that mirrors the Git repository structure.
 """
 
-from typing import Annotated
+from fastapi import APIRouter, Query
 
-from fastapi import APIRouter, Depends, Query
-
-from app.api.dependencies import get_current_user
 from app.core.logging import get_logger
-from app.db.models.user import User
 from app.schemas.navigation import BreadcrumbTrail, NavigationTree
 from app.services.navigation_service import NavigationService
 
@@ -52,7 +48,10 @@ async def get_breadcrumbs(
     Returns:
         Breadcrumb trail from root to current document
     """
+    from app.schemas.navigation import BreadcrumbItem
+
     nav_service = NavigationService()
-    items = await nav_service.get_breadcrumbs(path=path)
+    items_dicts = await nav_service.get_breadcrumbs(path=path)
+    items = [BreadcrumbItem(**item) for item in items_dicts]
 
     return BreadcrumbTrail(items=items)

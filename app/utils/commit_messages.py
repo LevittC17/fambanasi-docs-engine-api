@@ -5,6 +5,8 @@ Automatically generates meaningful commit messages for documentation
 changes following conventional commit format.
 """
 
+from typing import Any
+
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -48,24 +50,20 @@ def generate_commit_message(
     elif action == "delete":
         message = f"docs: Delete {doc_name}"
     elif action == "move":
-        new_filename = (
-            new_path.split("/")[-1].replace(".md", "") if new_path else "unknown"
-        )
+        new_filename = new_path.split("/")[-1].replace(".md", "") if new_path else "unknown"
         message = f"docs: Move {doc_name} to {new_filename}"
     else:
         message = f"docs: Modify {doc_name}"
 
     # Add path context if not obvious
     if "/" in path and path.count("/") > 1:
-        category = (
-            path.split("/")[1] if path.startswith("docs/") else path.split("/")[0]
-        )
+        category = path.split("/")[1] if path.startswith("docs/") else path.split("/")[0]
         message += f" ({category})"
 
     return message
 
 
-def format_bulk_commit_message(changes: list[dict]) -> str:
+def format_bulk_commit_message(changes: list[dict[str, Any]]) -> str:
     """
     Generate commit message for bulk operations.
 
@@ -86,7 +84,7 @@ def format_bulk_commit_message(changes: list[dict]) -> str:
     if not changes:
         return "docs: Bulk update"
 
-    action_counts = {}
+    action_counts: dict[str, int] = {}
     for change in changes:
         action = change.get("action", "modify")
         action_counts[action] = action_counts.get(action, 0) + 1
