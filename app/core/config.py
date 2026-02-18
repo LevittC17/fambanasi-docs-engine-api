@@ -10,7 +10,7 @@ import json
 from functools import lru_cache
 from typing import Any
 
-from pydantic import Field, PostgresDsn, field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -62,8 +62,8 @@ class Settings(BaseSettings):
     CORS_ALLOW_METHODS: list[str] = Field(default=["*"], description="Allowed HTTP methods")
     CORS_ALLOW_HEADERS: list[str] = Field(default=["*"], description="Allowed HTTP headers")
 
-    # Database Settings (Supabase PostgreSQL)
-    DATABASE_URL: PostgresDsn = Field(..., description="PostgreSQL database URL from Supabase")
+    # Database Settings
+    DATABASE_URL: str = Field(..., description="Database connection URL (PostgreSQL or SQLite)")
     DATABASE_POOL_SIZE: int = Field(default=20, description="Database connection pool size")
     DATABASE_MAX_OVERFLOW: int = Field(default=10, description="Max overflow connections")
     DATABASE_ECHO: bool = Field(default=False, description="Echo SQL queries (dev only)")
