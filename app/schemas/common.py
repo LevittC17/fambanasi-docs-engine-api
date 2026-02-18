@@ -5,7 +5,7 @@ Defines reusable schemas for pagination, error responses,
 and other cross-cutting concerns.
 """
 
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -29,7 +29,7 @@ class PaginationParams(BaseModel):
         return self.page_size
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
+class PaginatedResponse[T](BaseModel):
     """Generic schema for paginated responses."""
 
     items: list[T] = Field(..., description="List of items for current page")

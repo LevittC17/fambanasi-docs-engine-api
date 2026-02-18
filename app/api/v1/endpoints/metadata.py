@@ -19,7 +19,6 @@ from app.schemas.metadata import (
     DocumentMetadataResponse,
     MetadataBulkUpdate,
     MetadataCreate,
-    MetadataSearchQuery,
     MetadataStatsResponse,
     MetadataUpdate,
 )

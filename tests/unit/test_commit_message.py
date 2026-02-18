@@ -1,6 +1,5 @@
 """Unit tests for commit message generation."""
 
-import pytest
 
 from app.utils.commit_messages import (
     format_bulk_commit_message,

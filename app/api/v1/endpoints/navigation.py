@@ -5,13 +5,10 @@ Provides folder-aware navigation tree and breadcrumb generation
 that mirrors the Git repository structure.
 """
 
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Query
 
-from app.api.dependencies import get_current_user
 from app.core.logging import get_logger
-from app.db.models.user import User
 from app.schemas.navigation import BreadcrumbTrail, NavigationTree
 from app.services.navigation_service import NavigationService
 

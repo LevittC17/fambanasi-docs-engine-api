@@ -43,7 +43,7 @@ class GitHubService:
             logger.error(f"Failed to initialize GitHub service: {e}")
             raise GitHubAPIError(
                 message="Failed to connect to GitHub", details={"error": str(e)}
-            )
+            ) from e
 
     def _get_full_path(self, path: str) -> str:
         """
@@ -115,12 +115,12 @@ class GitHubService:
 
         except GithubException as e:
             if e.status == 404:
-                raise ResourceNotFoundError("Document", path)
+                raise ResourceNotFoundError("Document", path) from e
             logger.error(f"GitHub API error getting file {path}: {e}")
             raise GitHubAPIError(
                 message=f"Failed to get file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def create_file(
         self,
@@ -182,7 +182,7 @@ class GitHubService:
             raise GitHubAPIError(
                 message=f"Failed to create file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def update_file(
         self,
@@ -246,12 +246,12 @@ class GitHubService:
 
         except GithubException as e:
             if e.status == 404:
-                raise ResourceNotFoundError("Document", path)
+                raise ResourceNotFoundError("Document", path) from e
             logger.error(f"GitHub API error updating file {path}: {e}")
             raise GitHubAPIError(
                 message=f"Failed to update file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def delete_file(
         self,
@@ -307,12 +307,12 @@ class GitHubService:
 
         except GithubException as e:
             if e.status == 404:
-                raise ResourceNotFoundError("Document", path)
+                raise ResourceNotFoundError("Document", path) from e
             logger.error(f"GitHub API error deleting file {path}: {e}")
             raise GitHubAPIError(
                 message=f"Failed to delete file: {path}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def move_file(
         self,
@@ -442,7 +442,7 @@ class GitHubService:
             raise GitHubAPIError(
                 message=f"Failed to list files in: {directory}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def get_commit_history(
         self,
@@ -488,7 +488,7 @@ class GitHubService:
             raise GitHubAPIError(
                 message="Failed to fetch commit history",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     async def create_branch(
         self, branch_name: str, from_branch: str | None = None
@@ -531,7 +531,7 @@ class GitHubService:
             raise GitHubAPIError(
                 message=f"Failed to create branch: {branch_name}",
                 details={"error": str(e), "status": e.status},
-            )
+            ) from e
 
     def _format_commit_info(self, commit: GitCommit) -> dict[str, Any]:
         """
@@ -581,7 +581,7 @@ class GitHubService:
 
         return None
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:  # noqa: C901
         """
         Check GitHub API connectivity and rate limits.
 

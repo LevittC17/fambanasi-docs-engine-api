@@ -52,7 +52,7 @@ def verify_github_signature(payload_body: bytes, signature_header: str | None) -
 
 
 @router.post("/github", response_model=WebhookResponse)
-async def handle_github_webhook(
+async def handle_github_webhook(  # noqa: C901
     request: Request,
     db: Annotated[AsyncSession, Depends(get_db)],
     x_hub_signature_256: Annotated[str | None, Header()] = None,
@@ -101,7 +101,7 @@ async def handle_github_webhook(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid JSON payload: {e}",
-        )
+        ) from e
 
     # Handle ping event (sent when webhook is first created)
     if x_github_event == "ping":
@@ -133,7 +133,7 @@ async def handle_github_webhook(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Invalid webhook payload: {e}",
-        )
+        ) from e
 
     # Only process pushes to main branch
     if not payload.is_main_branch:

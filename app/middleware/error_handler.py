@@ -6,8 +6,8 @@ logs errors, and optionally sends to monitoring services.
 """
 
 import traceback
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse

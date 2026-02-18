@@ -15,8 +15,6 @@ from app.core.logging import get_logger
 from app.core.security import (
     create_access_token,
     create_refresh_token,
-    get_password_hash,
-    verify_password,
 )
 from app.db.models.user import User
 from app.schemas.auth import LoginRequest, LoginResponse, TokenResponse, UserResponse
@@ -104,7 +102,7 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed",
-        )
+        ) from e
 
 
 @router.get("/me", response_model=UserResponse)

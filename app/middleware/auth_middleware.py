@@ -5,7 +5,7 @@ Handles JWT token extraction, validation, and user context
 setting for all authenticated requests.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware

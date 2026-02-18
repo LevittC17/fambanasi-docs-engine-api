@@ -5,14 +5,13 @@ Tests the full request/response cycle including authentication,
 validation, and service orchestration.
 """
 
-from unittest.mock import AsyncMock, patch
-from uuid import uuid4
+from unittest.mock import patch
 
 import pytest
 from httpx import AsyncClient
 
 from app.core.security import create_access_token
-from app.db.models.user import User, UserRole
+from app.db.models.user import User
 
 
 class TestGetDocument:

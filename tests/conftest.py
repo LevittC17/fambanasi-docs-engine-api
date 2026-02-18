@@ -7,18 +7,15 @@ authenticated users, mock services, and test client setup.
 
 import asyncio
 from collections.abc import AsyncGenerator
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
-from app.core.config import settings
 from app.core.security import create_access_token
 from app.db.base import Base
 from app.db.models.user import User, UserRole
@@ -58,14 +55,14 @@ async def test_engine():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+async def db_session(test_engine) -> AsyncGenerator[AsyncSession]:
     """
     Provide test database session.
 
     Creates a fresh session for each test and rolls back
     changes after the test completes.
     """
-    TestSessionLocal = async_sessionmaker(
+    test_session_local = async_sessionmaker(
         test_engine,
         class_=AsyncSession,
         expire_on_commit=False,
@@ -73,7 +70,7 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
         autoflush=False,
     )
 
-    async with TestSessionLocal() as session:
+    async with test_session_local() as session:
         yield session
         await session.rollback()
 
@@ -135,7 +132,7 @@ def generate_token(user: User) -> str:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+async def async_client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
     """
     Provide async HTTP test client with database override.
 

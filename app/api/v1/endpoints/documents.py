@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import get_current_editor, get_current_user, get_db
+from app.api.dependencies import get_current_editor, get_db
 from app.core.logging import get_logger
 from app.db.models.user import User
 from app.schemas.document import (

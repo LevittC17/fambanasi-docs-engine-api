@@ -13,9 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies import get_db
 from app.core.logging import get_logger
 from app.schemas.document import DocumentSearchResult
-from app.schemas.metadata import MetadataSearchQuery
 from app.services.metadata_service import MetadataService
-from app.utils.markdown import extract_excerpt
 
 logger = get_logger(__name__)
 router = APIRouter()

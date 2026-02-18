@@ -1,6 +1,5 @@
 """Unit tests for markdown utilities."""
 
-import pytest
 
 from app.utils.markdown import (
     estimate_reading_time,

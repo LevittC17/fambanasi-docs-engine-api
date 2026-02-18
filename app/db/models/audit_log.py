@@ -5,8 +5,11 @@ Maintains comprehensive audit trail of user actions, document changes,
 and system events for compliance and troubleshooting.
 """
 
+from __future__ import annotations
+
 from datetime import datetime
-from enum import Enum as PyEnum
+from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -14,8 +17,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
+if TYPE_CHECKING:
+    from app.db.models.user import User
 
-class AuditAction(str, PyEnum):
+
+class AuditAction(StrEnum):
     """Types of auditable actions."""
 
     # Authentication
@@ -142,7 +148,7 @@ class AuditLog(Base):
     )
 
     # Relationships
-    user: Mapped["User | None"] = relationship("User", lazy="joined")
+    user: Mapped[User | None] = relationship("User", lazy="joined")
 
     def __repr__(self) -> str:
         """String representation of audit log."""

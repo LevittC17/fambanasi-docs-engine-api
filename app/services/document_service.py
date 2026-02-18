@@ -6,11 +6,9 @@ unified document management with full tracking and validation.
 """
 
 from typing import Any
-from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import ResourceNotFoundError, ValidationError
 from app.core.logging import get_logger
 from app.db.models.user import User
 from app.schemas.document import (

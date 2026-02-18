@@ -5,18 +5,23 @@ Drafts are stored in the database rather than Git, allowing users
 to work on content without committing to the repository.
 """
 
-from datetime import datetime
-from enum import Enum as PyEnum
+from __future__ import annotations
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
+from datetime import datetime
+from enum import StrEnum
+from typing import TYPE_CHECKING
+
+from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
 
+if TYPE_CHECKING:
+    from app.db.models.user import User
 
-class DraftStatus(str, PyEnum):
+
+class DraftStatus(StrEnum):
     """Status of a draft document."""
 
     DRAFT = "draft"  # Work in progress
@@ -115,11 +120,11 @@ class Draft(Base, TimestampMixin):
     )
 
     # Relationships
-    author: Mapped["User"] = relationship(
+    author: Mapped[User] = relationship(
         "User", foreign_keys=[author_id], lazy="joined"
     )
 
-    reviewer: Mapped["User | None"] = relationship(
+    reviewer: Mapped[User | None] = relationship(
         "User", foreign_keys=[reviewer_id], lazy="joined"
     )
 

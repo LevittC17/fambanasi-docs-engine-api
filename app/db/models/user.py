@@ -6,7 +6,7 @@ and permissions for role-based access control.
 """
 
 from datetime import datetime
-from enum import Enum as PyEnum
+from enum import StrEnum
 
 from sqlalchemy import Boolean, DateTime, Enum, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -15,7 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base, TimestampMixin
 
 
-class UserRole(str, PyEnum):
+class UserRole(StrEnum):
     """User roles for role-based access control."""
 
     VIEWER = "viewer"  # Can only view documentation

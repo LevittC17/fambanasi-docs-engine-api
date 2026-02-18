@@ -21,7 +21,7 @@ class NavigationNode(BaseModel):
     label: str = Field(..., description="Display label for the node")
     path: str = Field(..., description="Full path in Git repository")
     type: str = Field(..., description="Node type: 'folder' or 'document'")
-    children: list["NavigationNode"] = Field(
+    children: list[NavigationNode] = Field(
         default_factory=list, description="Child nodes (empty for documents)"
     )
     order: int = Field(default=0, description="Display order (for manual sorting)")

@@ -6,9 +6,9 @@ enabling configuration through environment variables with type validation.
 Settings are loaded from .env files and environment variables.
 """
 
-from functools import lru_cache
-from typing import Any, ClassVar
 import json
+from functools import lru_cache
+from typing import Any
 
 from pydantic import Field, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     )
 
     # Server Settings
-    HOST: str = Field(default="0.0.0.0", description="Server host")
+    HOST: str = Field(default="0.0.0.0", description="Server host")  # noqa: S104
     PORT: int = Field(default=8000, description="Server port")
     API_V1_PREFIX: str = Field(default="/api/v1", description="API v1 route prefix")
 
@@ -183,7 +183,8 @@ class Settings(BaseSettings):
             if s.startswith("["):
                 try:
                     return json.loads(s)
-                except Exception:
+                except Exception:  # noqa: S110
+                    # Log error or ignore
                     pass
             return [item.strip() for item in s.split(",") if item.strip()]
         return v

@@ -5,11 +5,10 @@ Handles caching, indexing, and querying of document metadata
 for fast search and analytics without hitting Git repository.
 """
 
-from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ResourceNotFoundError

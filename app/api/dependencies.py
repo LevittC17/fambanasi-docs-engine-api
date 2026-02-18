@@ -13,8 +13,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.core.exceptions import AuthenticationError, AuthorizationError
+from app.core.exceptions import AuthenticationError
 from app.core.logging import get_logger
 from app.core.security import decode_token, verify_supabase_token
 from app.db.models.user import User, UserRole
@@ -83,14 +82,14 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
     except Exception as e:
         logger.error(f"Authentication error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 
 
 async def get_current_active_user(
@@ -170,8 +169,6 @@ async def verify_webhook_signature(
     Raises:
         HTTPException: If signature is missing or invalid
     """
-    import hmac
-    import hashlib
 
     if not x_hub_signature_256 and not x_hub_signature:
         raise HTTPException(

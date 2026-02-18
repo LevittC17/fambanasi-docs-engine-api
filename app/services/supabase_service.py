@@ -36,7 +36,7 @@ class SupabaseService:
             logger.error(f"Failed to initialize Supabase service: {e}")
             raise SupabaseError(
                 message="Failed to connect to Supabase", details={"error": str(e)}
-            )
+            ) from e
 
     async def verify_user(self, user_id: str | UUID) -> dict[str, Any]:
         """
@@ -75,7 +75,7 @@ class SupabaseService:
             logger.error(f"Error verifying user {user_id}: {e}")
             raise SupabaseError(
                 message="Failed to verify user", details={"error": str(e)}
-            )
+            ) from e
 
     async def upload_file(
         self,
@@ -103,7 +103,7 @@ class SupabaseService:
             logger.info(f"Uploading file to {bucket}/{path}")
 
             # Upload file
-            response = self._client.storage.from_(bucket).upload(
+            self._client.storage.from_(bucket).upload(
                 path=path,
                 file=file_data,
                 file_options={"content-type": content_type} if content_type else None,
@@ -123,7 +123,7 @@ class SupabaseService:
             logger.error(f"Error uploading file to {bucket}/{path}: {e}")
             raise SupabaseError(
                 message="Failed to upload file", details={"error": str(e), "path": path}
-            )
+            ) from e
 
     async def delete_file(self, bucket: str, path: str) -> None:
         """
@@ -145,7 +145,7 @@ class SupabaseService:
             logger.error(f"Error deleting file from {bucket}/{path}: {e}")
             raise SupabaseError(
                 message="Failed to delete file", details={"error": str(e), "path": path}
-            )
+            ) from e
 
     async def get_file_url(self, bucket: str, path: str, expires_in: int = 3600) -> str:
         """
@@ -174,7 +174,7 @@ class SupabaseService:
             raise SupabaseError(
                 message="Failed to generate file URL",
                 details={"error": str(e), "path": path},
-            )
+            ) from e
 
     async def list_files(self, bucket: str, path: str = "") -> list[dict[str, Any]]:
         """
@@ -209,7 +209,7 @@ class SupabaseService:
             logger.error(f"Error listing files in {bucket}/{path}: {e}")
             raise SupabaseError(
                 message="Failed to list files", details={"error": str(e), "path": path}
-            )
+            ) from e
 
     async def ensure_bucket_exists(self, bucket: str) -> None:
         """
@@ -235,7 +235,7 @@ class SupabaseService:
             raise SupabaseError(
                 message="Failed to ensure bucket exists",
                 details={"error": str(e), "bucket": bucket},
-            )
+            ) from e
 
     async def health_check(self) -> dict[str, Any]:
         """

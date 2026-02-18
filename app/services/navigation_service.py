@@ -5,7 +5,6 @@ Generates and manages hierarchical navigation structure
 mirroring the Git repository organization.
 """
 
-from typing import Any
 
 from app.core.logging import get_logger
 from app.schemas.navigation import NavigationNode, NavigationTree

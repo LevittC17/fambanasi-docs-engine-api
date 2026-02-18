@@ -9,14 +9,14 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ResourceNotFoundError, ValidationError
 from app.core.logging import get_logger
 from app.db.models.draft import Draft, DraftStatus
 from app.db.models.user import User, UserRole
-from app.schemas.draft import DraftCreate, DraftResponse, DraftStatusUpdate, DraftUpdate
+from app.schemas.draft import DraftCreate, DraftStatusUpdate, DraftUpdate
 from app.services.audit_service import AuditService
 from app.services.document_service import DocumentService
 from app.utils.file_helpers import generate_slug

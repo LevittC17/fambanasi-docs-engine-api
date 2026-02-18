@@ -99,7 +99,7 @@ class MediaService:
             raise
         except Exception as e:
             logger.error(f"Error uploading image {filename}: {e}")
-            raise FileUploadError(f"Failed to upload image: {str(e)}")
+            raise FileUploadError(f"Failed to upload image: {str(e)}") from e
 
     async def _optimize_image(
         self,
@@ -156,7 +156,7 @@ class MediaService:
 
         except Exception as e:
             logger.error(f"Error optimizing image: {e}")
-            raise FileUploadError(f"Failed to optimize image: {str(e)}")
+            raise FileUploadError(f"Failed to optimize image: {str(e)}") from e
 
     def _get_content_type(self, filename: str) -> str:
         """Determine content type from filename."""

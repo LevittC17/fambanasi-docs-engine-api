@@ -4,7 +4,6 @@ Integration tests for draft API endpoints.
 Tests the draft creation, review workflow, and publishing.
 """
 
-from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient

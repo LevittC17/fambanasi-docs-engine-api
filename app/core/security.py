@@ -136,7 +136,7 @@ def decode_token(token: str) -> dict[str, Any]:
         logger.warning(f"Token decode error: {e}")
         raise AuthenticationError(
             message="Invalid or expired token", details={"error": str(e)}
-        )
+        ) from e
 
 
 def verify_supabase_token(token: str) -> dict[str, Any]:
@@ -164,7 +164,7 @@ def verify_supabase_token(token: str) -> dict[str, Any]:
         logger.warning(f"Supabase token verification error: {e}")
         raise AuthenticationError(
             message="Invalid Supabase token", details={"error": str(e)}
-        )
+        ) from e
 
 
 def check_permission(user_role: UserRole, required_role: UserRole) -> None:
