@@ -4,10 +4,11 @@ Integration tests for draft API endpoints.
 Tests the draft creation, review workflow, and publishing.
 """
 
+from unittest.mock import patch
+
 import pytest
 from httpx import AsyncClient
 
-from unittest.mock import patch
 from app.core.security import create_access_token
 from app.db.models.draft import DraftStatus
 from app.db.models.user import User
