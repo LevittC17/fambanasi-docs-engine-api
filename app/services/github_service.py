@@ -6,10 +6,10 @@ commits, branch management, and webhook processing.
 """
 
 import base64
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
-from github import Github, GithubException, GithubObject, Repository
+from github import Auth, Github, GithubException, GithubObject, Repository
 
 from app.core.config import settings
 from app.core.exceptions import GitHubAPIError, ResourceNotFoundError
@@ -30,7 +30,8 @@ class GitHubService:
     def __init__(self) -> None:
         """Initialize GitHub service with authentication."""
         try:
-            self._client = Github(settings.GITHUB_TOKEN)
+            auth = Auth.Token(settings.GITHUB_TOKEN)
+            self._client = Github(auth=auth)
             self._repo: Repository.Repository = self._client.get_repo(
                 f"{settings.GITHUB_OWNER}/{settings.GITHUB_REPO}"
             )
@@ -608,7 +609,7 @@ class GitHubService:
             # Normalize reset to ISO string
             reset_iso = None
             if isinstance(reset, (int, float)):
-                reset_iso = datetime.fromtimestamp(reset).isoformat()
+                reset_iso = datetime.fromtimestamp(reset, tz=UTC).isoformat()
             elif hasattr(reset, "isoformat"):
                 try:
                     reset_iso = reset.isoformat()  # type: ignore[union-attr]

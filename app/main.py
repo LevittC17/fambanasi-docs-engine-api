@@ -7,6 +7,7 @@ lifecycle event handlers for database and external services.
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import UTC
 from typing import Any
 
 from fastapi import FastAPI
@@ -140,7 +141,7 @@ async def health_check() -> JSONResponse:
 
     health_status: dict[str, Any] = {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "version": settings.APP_VERSION,
         "environment": settings.ENVIRONMENT,
         "services": {},

@@ -5,6 +5,7 @@ Provides document metadata operations including search, filtering,
 analytics, and bulk updates.
 """
 
+from datetime import UTC
 from typing import Annotated, Any
 from uuid import UUID
 
@@ -113,7 +114,7 @@ async def get_metadata_stats(
         last_updated=(
             datetime.fromisoformat(stats["last_updated"])
             if stats.get("last_updated")
-            else datetime.utcnow()
+            else datetime.now(UTC)
         ),
     )
 

@@ -5,7 +5,7 @@ Handles draft creation, editing, review workflow, and publishing
 to the Git repository.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -280,7 +280,7 @@ class DraftService:
 
             # Update status
             draft.status = DraftStatus.IN_REVIEW
-            draft.submitted_at = datetime.utcnow()
+            draft.submitted_at = datetime.now(UTC)
             draft.reviewer_id = reviewer_id
 
             await db.commit()
@@ -343,7 +343,7 @@ class DraftService:
             # Update status
             draft.status = status_update.status
             draft.reviewer_id = reviewer.id
-            draft.reviewed_at = datetime.utcnow()
+            draft.reviewed_at = datetime.now(UTC)
             draft.review_comments = status_update.review_comments
 
             await db.commit()
@@ -443,7 +443,7 @@ class DraftService:
 
             # Update draft status
             draft.status = DraftStatus.APPROVED  # Keep as approved
-            draft.published_at = datetime.utcnow()
+            draft.published_at = datetime.now(UTC)
 
             await db.commit()
             await db.refresh(draft)

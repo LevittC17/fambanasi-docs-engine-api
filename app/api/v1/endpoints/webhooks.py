@@ -7,6 +7,7 @@ cache invalidation, and CI/CD pipeline triggers.
 
 import hashlib
 import hmac
+from datetime import UTC
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
@@ -111,7 +112,7 @@ async def handle_github_webhook(  # noqa: C901
             message="Ping received successfully",
             affected_files=[],
             rebuild_triggered=False,
-            processed_at=datetime.utcnow(),
+            processed_at=datetime.now(UTC),
         )
 
     # Process push events only
@@ -122,7 +123,7 @@ async def handle_github_webhook(  # noqa: C901
             message=f"Event type '{x_github_event}' acknowledged but not processed",
             affected_files=[],
             rebuild_triggered=False,
-            processed_at=datetime.utcnow(),
+            processed_at=datetime.now(UTC),
         )
 
     # Parse push payload
@@ -143,7 +144,7 @@ async def handle_github_webhook(  # noqa: C901
             message=f"Push to '{payload.branch_name}' acknowledged but not processed",
             affected_files=[],
             rebuild_triggered=False,
-            processed_at=datetime.utcnow(),
+            processed_at=datetime.now(UTC),
         )
 
     # Get affected documentation files

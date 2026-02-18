@@ -5,6 +5,8 @@ Generates and manages hierarchical navigation structure
 mirroring the Git repository organization.
 """
 
+from datetime import UTC
+
 from app.core.logging import get_logger
 from app.schemas.navigation import NavigationNode, NavigationTree
 from app.services.github_service import GitHubService
@@ -116,7 +118,7 @@ class NavigationService:
                 root=root,
                 total_documents=total_docs,
                 total_folders=total_folders,
-                last_updated=datetime.utcnow().isoformat(),
+                last_updated=datetime.now(UTC).isoformat(),
             )
 
         except Exception as e:

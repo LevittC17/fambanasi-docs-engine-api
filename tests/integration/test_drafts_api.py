@@ -7,9 +7,21 @@ Tests the draft creation, review workflow, and publishing.
 import pytest
 from httpx import AsyncClient
 
+from unittest.mock import patch
 from app.core.security import create_access_token
 from app.db.models.draft import DraftStatus
 from app.db.models.user import User
+
+
+@pytest.fixture(autouse=True)
+def mock_external_services():
+    """Mock GitHub and Document services to prevent unmocked API calls in CI."""
+    with (
+        patch("app.services.draft_service.DocumentService"),
+        patch("app.api.v1.endpoints.drafts.DraftService.publish_draft") as mock_publish,
+    ):
+        mock_publish.return_value = {"status": "success", "message": "Mocked publish"}
+        yield
 
 
 class TestCreateDraft:

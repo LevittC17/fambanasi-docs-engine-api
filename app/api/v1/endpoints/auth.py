@@ -4,6 +4,7 @@ Authentication endpoints.
 Provides user authentication, registration, and token management.
 """
 
+from datetime import UTC
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -74,7 +75,7 @@ async def login(
         # Update last login
         from datetime import datetime
 
-        user.last_login_at = datetime.utcnow()
+        user.last_login_at = datetime.now(UTC)
         await db.commit()
 
         # Log audit trail

@@ -7,7 +7,7 @@ logs errors, and optionally sends to monitoring services.
 
 import traceback
 from collections.abc import Awaitable, Callable
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
@@ -51,7 +51,7 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
                     "error": e.message,
                     "details": e.details,
                     "status_code": e.status_code,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "path": request.url.path,
                 },
             )
