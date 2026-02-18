@@ -6,10 +6,10 @@ Pagefind search indexing and filtering.
 """
 
 from typing import Any
-from uuid import UUID as PyUUID
+from uuid import UUID
 
 from sqlalchemy import ARRAY, String, Text, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
@@ -26,8 +26,8 @@ class DocumentMetadata(Base, TimestampMixin):
     __tablename__ = "document_metadata"
 
     # Primary key
-    id: Mapped[PyUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
         doc="Metadata record ID",

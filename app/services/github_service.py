@@ -10,8 +10,6 @@ from datetime import datetime
 from typing import Any
 
 from github import Github, GithubException, GithubObject, Repository
-from github.Commit import Commit
-from github.ContentFile import ContentFile
 
 from app.core.config import settings
 from app.core.exceptions import GitHubAPIError, ResourceNotFoundError

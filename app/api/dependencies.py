@@ -5,7 +5,8 @@ Provides reusable dependencies for authentication, authorization,
 database access, and other common requirements.
 """
 
-from typing import Annotated, Any, Callable, Coroutine
+from collections.abc import Callable, Coroutine
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import Depends, Header, HTTPException, status

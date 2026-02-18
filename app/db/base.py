@@ -24,6 +24,7 @@ class Base(DeclarativeBase):
 
     # Generate __tablename__ automatically from class name
     @declared_attr.directive
+    @classmethod
     def __tablename__(cls) -> str:
         """Generate table name from class name (snake_case)."""
         name = cls.__name__

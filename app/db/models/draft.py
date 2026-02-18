@@ -10,10 +10,10 @@ from __future__ import annotations
 from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
-from uuid import UUID as PyUUID
+from uuid import UUID
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -42,8 +42,8 @@ class Draft(Base, TimestampMixin):
     __tablename__ = "drafts"
 
     # Primary key
-    id: Mapped[PyUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
         doc="Draft unique identifier",
@@ -81,16 +81,16 @@ class Draft(Base, TimestampMixin):
     )
 
     # Authorship and review
-    author_id: Mapped[PyUUID] = mapped_column(
-        UUID(as_uuid=True),
+    author_id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
-        doc="Draft author user ID",
+        doc="Author of the draft",
     )
 
-    reviewer_id: Mapped[PyUUID | None] = mapped_column(
-        UUID(as_uuid=True),
+    reviewer_id: Mapped[UUID | None] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         doc="Reviewer user ID",

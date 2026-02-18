@@ -148,9 +148,9 @@ async def health_check() -> JSONResponse:
 
     # Check database
     try:
-        from app.db.session import engine
-
         from sqlalchemy import text
+
+        from app.db.session import engine
 
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
