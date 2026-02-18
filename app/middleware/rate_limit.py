@@ -6,7 +6,7 @@ API abuse and ensure fair resource usage.
 """
 
 import time
-from collections.abc import Callable
+from typing import Any, Awaitable, Callable
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
@@ -26,7 +26,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     system stability under load.
     """
 
-    def __init__(self, app, redis_client=None):
+    def __init__(self, app: Callable[..., Any], redis_client: Any = None) -> None:
         """
         Initialize rate limiter.
 
@@ -40,9 +40,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.rate_limit = settings.RATE_LIMIT_PER_MINUTE
 
         # In-memory fallback if Redis unavailable
-        self._memory_cache: dict[str, dict] = {}
+        self._memory_cache: dict[str, dict[str, Any]] = {}
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         """
         Process request with rate limiting.
 

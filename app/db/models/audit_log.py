@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+from uuid import UUID as PyUUID
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -33,6 +34,7 @@ class AuditAction(StrEnum):
     DOCUMENT_UPDATE = "document_update"
     DOCUMENT_DELETE = "document_delete"
     DOCUMENT_PUBLISH = "document_publish"
+    DOCUMENT_MOVE = "document_move"
 
     # Draft operations
     DRAFT_CREATE = "draft_create"
@@ -67,7 +69,7 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
+    id: Mapped[PyUUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
@@ -84,7 +86,7 @@ class AuditLog(Base):
     )
 
     # User information
-    user_id: Mapped[UUID | None] = mapped_column(
+    user_id: Mapped[PyUUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
@@ -132,16 +134,16 @@ class AuditLog(Base):
 
     # 'metadata' is reserved by SQLAlchemy's Declarative API, use attribute
     # name `metadata_` while keeping the DB column name as 'metadata'.
-    metadata_: Mapped[dict | None] = mapped_column(
+    metadata_: Mapped[dict[str, Any] | None] = mapped_column(
         "metadata", JSONB, nullable=True, doc="Additional metadata about the action (JSON)"
     )
 
     # Before/after state for changes
-    old_value: Mapped[dict | None] = mapped_column(
+    old_value: Mapped[dict[str, Any] | None] = mapped_column(
         JSONB, nullable=True, doc="State before the change (for updates/deletes)"
     )
 
-    new_value: Mapped[dict | None] = mapped_column(
+    new_value: Mapped[dict[str, Any] | None] = mapped_column(
         JSONB, nullable=True, doc="State after the change (for creates/updates)"
     )
 

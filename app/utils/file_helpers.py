@@ -81,22 +81,22 @@ def parse_markdown(content: str) -> dict[str, Any]:
     }
 
 
-def combine_frontmatter_and_content(frontmatter: dict[str, Any], content: str) -> str:
+def combine_frontmatter_and_content(fm_data: dict[str, Any], content: str) -> str:
     """
     Combine frontmatter dictionary and content into markdown string.
 
     Args:
-        frontmatter: Dictionary of frontmatter fields
+        fm_data: Dictionary of frontmatter fields
         content: Markdown content
 
     Returns:
         Complete markdown document with frontmatter
     """
-    if not frontmatter:
+    if not fm_data:
         return content
 
-    post = frontmatter.Post(content, **frontmatter)
-    return frontmatter.dumps(post)
+    post = frontmatter.Post(content, **fm_data)
+    return str(frontmatter.dumps(post))
 
 
 def sanitize_filename(filename: str) -> str:

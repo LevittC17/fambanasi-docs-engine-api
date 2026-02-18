@@ -9,9 +9,9 @@ import base64
 from datetime import datetime
 from typing import Any
 
-from github import Github, GithubException, Repository
+from github import Github, GithubException, GithubObject, Repository
+from github.Commit import Commit
 from github.ContentFile import ContentFile
-from github.GitCommit import GitCommit
 
 from app.core.config import settings
 from app.core.exceptions import GitHubAPIError, ResourceNotFoundError
@@ -86,7 +86,7 @@ class GitHubService:
             logger.info(f"Fetching file: {full_path} from {branch}")
 
             # Get file content
-            file_content: ContentFile = self._repo.get_contents(full_path, ref=branch)
+            file_content = self._repo.get_contents(full_path, ref=branch)
 
             if isinstance(file_content, list):
                 raise GitHubAPIError(message=f"Path is a directory, not a file: {path}")
@@ -466,7 +466,7 @@ class GitHubService:
 
             commits = self._repo.get_commits(
                 sha=branch,
-                path=full_path,
+                path=full_path if full_path else GithubObject.NotSet,
             )
 
             commit_list = []
@@ -525,7 +525,7 @@ class GitHubService:
                 details={"error": str(e), "status": e.status},
             ) from e
 
-    def _format_commit_info(self, commit: GitCommit) -> dict[str, Any]:
+    def _format_commit_info(self, commit: Any) -> dict[str, Any]:
         """
         Format commit information for API response.
 
@@ -613,7 +613,7 @@ class GitHubService:
                 reset_iso = datetime.fromtimestamp(reset).isoformat()
             elif hasattr(reset, "isoformat"):
                 try:
-                    reset_iso = reset.isoformat()
+                    reset_iso = reset.isoformat()  # type: ignore[union-attr]
                 except Exception:
                     reset_iso = str(reset)
             elif reset is not None:

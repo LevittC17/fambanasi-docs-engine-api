@@ -48,7 +48,10 @@ async def get_breadcrumbs(
     Returns:
         Breadcrumb trail from root to current document
     """
+    from app.schemas.navigation import BreadcrumbItem
+
     nav_service = NavigationService()
-    items = await nav_service.get_breadcrumbs(path=path)
+    items_dicts = await nav_service.get_breadcrumbs(path=path)
+    items = [BreadcrumbItem(**item) for item in items_dicts]
 
     return BreadcrumbTrail(items=items)

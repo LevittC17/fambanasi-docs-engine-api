@@ -5,7 +5,7 @@ Provides server-side search support and metadata-powered filtering
 to complement the client-side Pagefind integration.
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -99,7 +99,7 @@ async def get_search_suggestions(
     db: Annotated[AsyncSession, Depends(get_db)],
     q: str = Query(..., min_length=1, description="Partial query for suggestions"),
     limit: int = Query(5, ge=1, le=20, description="Maximum suggestions"),
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """
     Get search suggestions for autocomplete.
 
@@ -136,7 +136,7 @@ async def get_search_suggestions(
 @router.get("/filters")
 async def get_search_filters(
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> dict:
+) -> dict[str, Any]:
     """
     Get available search filter options.
 

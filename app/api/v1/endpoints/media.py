@@ -5,7 +5,7 @@ Provides image and file upload, optimization, and management
 using Supabase Storage as the backend.
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
@@ -24,7 +24,7 @@ async def upload_media(
     file: Annotated[UploadFile, File(description="Image or document file to upload")],
     current_user: Annotated[User, Depends(get_current_editor)],
     optimize: bool = True,
-) -> dict:
+) -> dict[str, Any]:
     """
     Upload a media file.
 
@@ -102,7 +102,7 @@ async def upload_media(
 async def list_media(
     current_user: Annotated[User, Depends(get_current_editor)],
     directory: str = "images",
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """
     List uploaded media files.
 

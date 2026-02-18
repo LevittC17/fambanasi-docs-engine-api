@@ -5,7 +5,7 @@ Provides document metadata operations including search, filtering,
 analytics, and bulk updates.
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
@@ -220,7 +220,7 @@ async def bulk_update_metadata(
     bulk_update: MetadataBulkUpdate,
     current_user: Annotated[User, Depends(get_current_editor)],
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> dict:
+) -> dict[str, Any]:
     """
     Bulk update metadata for multiple documents.
 

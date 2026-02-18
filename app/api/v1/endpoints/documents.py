@@ -4,7 +4,7 @@ Document management endpoints.
 Provides CRUD operations for documentation files in Git repository.
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -151,7 +151,7 @@ async def list_documents(
     directory: str = "",
     branch: str | None = None,
     recursive: bool = False,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """
     List documents in a directory.
 

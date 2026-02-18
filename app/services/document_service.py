@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.db.models.audit_log import AuditAction
 from app.db.models.user import User
 from app.schemas.document import (
     DocumentCreate,
@@ -81,7 +82,7 @@ class DocumentService:
 
             return DocumentResponse(
                 path=path,
-                title=frontmatter.title if frontmatter else path.split("/")[-1].replace(".md", ""),
+                title=frontmatter.title if frontmatter and frontmatter.title else path.split("/")[-1].replace(".md", ""),
                 content=content,
                 frontmatter=frontmatter,
                 last_modified=file_info["last_modified"],
@@ -373,7 +374,7 @@ class DocumentService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="document_move",
+                action=AuditAction.DOCUMENT_MOVE,
                 description=f"Moved document: {old_path} to {new_path}",
                 user_id=user.id,
                 resource_type="document",

@@ -134,7 +134,7 @@ class Settings(BaseSettings):
         """Parse CORS origins from string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
-        return v
+        return list(v)
 
     @field_validator("ALLOWED_IMAGE_TYPES", "ALLOWED_DOCUMENT_TYPES", mode="before")
     @classmethod
@@ -146,12 +146,12 @@ class Settings(BaseSettings):
                 return []
             if s.startswith("["):
                 try:
-                    return json.loads(s)
+                    return list(json.loads(s))
                 except Exception:  # noqa: S110
                     # Log error or ignore
                     pass
             return [item.strip() for item in s.split(",") if item.strip()]
-        return v
+        return list(v) if isinstance(v, (list, tuple)) else []
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

@@ -120,7 +120,7 @@ class MediaService:
         """
         try:
             # Open image
-            image = Image.open(io.BytesIO(file_data))
+            image: Image.Image = Image.open(io.BytesIO(file_data))
 
             # Convert RGBA to RGB if necessary
             if image.mode == "RGBA":

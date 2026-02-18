@@ -4,7 +4,7 @@ Draft management endpoints.
 Provides CRUD operations and review workflow for unpublished drafts.
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
@@ -197,7 +197,7 @@ async def publish_draft(
     db: Annotated[AsyncSession, Depends(get_db)],
     commit_message: str | None = None,
     branch: str | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """
     Publish draft to Git repository.
 

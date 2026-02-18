@@ -371,7 +371,7 @@ class MetadataService:
                 func.avg(DocumentMetadata.reading_time),
             )
         )
-        avg_word_count, avg_reading_time = avg_result.first()
+        avg_word_count, avg_reading_time = avg_result.one()
 
         # Last updated
         latest_result = await db.execute(select(func.max(DocumentMetadata.updated_at)))

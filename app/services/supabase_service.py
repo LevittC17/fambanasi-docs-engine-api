@@ -224,9 +224,9 @@ class SupabaseService:
             buckets = self._client.storage.list_buckets()
 
             # Check if bucket exists
-            if not any(b["name"] == bucket for b in buckets):
+            if not any(getattr(b, "name", "") == bucket for b in buckets):
                 logger.info(f"Creating storage bucket: {bucket}")
-                self._client.storage.create_bucket(bucket, {"public": True})
+                self._client.storage.create_bucket(bucket, {"public": True})  # type: ignore[arg-type]
 
         except Exception as e:
             logger.error(f"Error ensuring bucket exists: {e}")

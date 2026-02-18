@@ -5,7 +5,7 @@ Provides admin-level user management including listing,
 role management, and activity monitoring.
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
@@ -174,7 +174,7 @@ async def get_user_activity(
     current_user: Annotated[User, Depends(get_current_admin)],
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
-) -> dict:
+) -> dict[str, Any]:
     """
     Get user activity log.
 
