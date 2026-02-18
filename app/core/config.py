@@ -133,8 +133,18 @@ class Settings(BaseSettings):
     def parse_cors_origins(cls, v: Any) -> list[str]:
         """Parse CORS origins from string or list."""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return list(v)
+            s = v.strip()
+            if not s:
+                return []
+            if s.startswith("[") and s.endswith("]"):
+                try:
+                    return list(json.loads(s))
+                except Exception:  # noqa: S110
+                    pass
+            return [origin.strip() for origin in s.split(",")]
+        if isinstance(v, (list, tuple)):
+            return list(v)
+        return []
 
     @field_validator("ALLOWED_IMAGE_TYPES", "ALLOWED_DOCUMENT_TYPES", mode="before")
     @classmethod
@@ -144,14 +154,15 @@ class Settings(BaseSettings):
             s = v.strip()
             if not s:
                 return []
-            if s.startswith("["):
+            if s.startswith("[") and s.endswith("]"):
                 try:
                     return list(json.loads(s))
                 except Exception:  # noqa: S110
-                    # Log error or ignore
                     pass
             return [item.strip() for item in s.split(",") if item.strip()]
-        return list(v) if isinstance(v, (list, tuple)) else []
+        if isinstance(v, (list, tuple)):
+            return list(v)
+        return []
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
