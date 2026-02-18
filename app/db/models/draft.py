@@ -10,6 +10,7 @@ from enum import Enum as PyEnum
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -36,10 +37,7 @@ class Draft(Base, TimestampMixin):
 
     # Primary key
     id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        server_default="gen_random_uuid()",
-        doc="Draft unique identifier",
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), doc="Draft unique identifier",
     )
 
     # Document information

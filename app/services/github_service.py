@@ -591,18 +591,51 @@ class GitHubService:
         try:
             rate_limit = self._client.get_rate_limit()
 
+            # Support multiple shapes returned by PyGithub across versions.
+            core = getattr(rate_limit, "core", None)
+            remaining = limit = reset = None
+
+            if core is not None:
+                remaining = getattr(core, "remaining", None)
+                limit = getattr(core, "limit", None)
+                reset = getattr(core, "reset", None)
+            else:
+                # Try raw_data (dict) shape: {"resources": {"core": {...}}}
+                raw = getattr(rate_limit, "raw_data", None)
+                if isinstance(raw, dict):
+                    core = raw.get("resources", {}).get("core")
+                    if core:
+                        remaining = core.get("remaining")
+                        limit = core.get("limit")
+                        reset = core.get("reset")
+                elif isinstance(rate_limit, dict):
+                    core = rate_limit.get("resources", {}).get("core")
+                    if core:
+                        remaining = core.get("remaining")
+                        limit = core.get("limit")
+                        reset = core.get("reset")
+
+            # Normalize reset to ISO string
+            reset_iso = None
+            if isinstance(reset, (int, float)):
+                reset_iso = datetime.fromtimestamp(reset).isoformat()
+            elif hasattr(reset, "isoformat"):
+                try:
+                    reset_iso = reset.isoformat()
+                except Exception:
+                    reset_iso = str(reset)
+            elif reset is not None:
+                reset_iso = str(reset)
+
             return {
                 "status": "healthy",
                 "repository": f"{settings.GITHUB_OWNER}/{settings.GITHUB_REPO}",
                 "rate_limit": {
-                    "remaining": rate_limit.core.remaining,
-                    "limit": rate_limit.core.limit,
-                    "reset": rate_limit.core.reset.isoformat(),
+                    "remaining": remaining if remaining is not None else "unknown",
+                    "limit": limit if limit is not None else "unknown",
+                    "reset": reset_iso,
                 },
             }
         except Exception as e:
             logger.error(f"GitHub health check failed: {e}")
-            return {
-                "status": "unhealthy",
-                "error": str(e),
-            }
+            return {"status": "unhealthy", "error": str(e)}

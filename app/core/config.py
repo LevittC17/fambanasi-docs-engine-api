@@ -8,6 +8,7 @@ Settings are loaded from .env files and environment variables.
 
 from functools import lru_cache
 from typing import Any, ClassVar
+import json
 
 from pydantic import Field, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -169,6 +170,22 @@ class Settings(BaseSettings):
         """Parse CORS origins from string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
+        return v
+
+    @field_validator("ALLOWED_IMAGE_TYPES", "ALLOWED_DOCUMENT_TYPES", mode="before")
+    @classmethod
+    def parse_allowed_types(cls, v: Any) -> list[str]:
+        """Parse allowed MIME types from JSON array or comma-separated string."""
+        if isinstance(v, str):
+            s = v.strip()
+            if not s:
+                return []
+            if s.startswith("["):
+                try:
+                    return json.loads(s)
+                except Exception:
+                    pass
+            return [item.strip() for item in s.split(",") if item.strip()]
         return v
 
     @field_validator("DATABASE_URL", mode="before")

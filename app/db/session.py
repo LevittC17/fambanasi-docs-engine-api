@@ -17,15 +17,30 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 # Create async engine with connection pooling
+def _ensure_async_driver(url: str) -> str:
+    """Ensure the database URL uses an async driver (asyncpg) for async engine.
+
+    If the provided URL is a sync 'postgresql://' or 'postgres://' URL, convert
+    it to 'postgresql+asyncpg://'. If the URL already specifies a driver
+    (contains '+'), return unchanged.
+    """
+    if "+" in url:
+        return url
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    return url
+
+
 engine = create_async_engine(
-    str(settings.DATABASE_URL),
+    _ensure_async_driver(str(settings.DATABASE_URL)),
     echo=settings.DATABASE_ECHO,
-    pool_size=settings.DATABASE_POOL_SIZE,
-    max_overflow=settings.DATABASE_MAX_OVERFLOW,
+    # asyncpg + SQLAlchemy's async engine manages pooling differently; do not
+    # pass `pool_size`/`max_overflow` which are invalid for certain async
+    # combinations (e.g. PGDialect_asyncpg/NullPool/Engine).
     pool_pre_ping=True,  # Verify connections before using
-    poolclass=NullPool
-    if settings.is_development
-    else None,  # Disable pooling in dev for easier debugging
+    poolclass=NullPool if settings.is_development else None,
 )
 
 # Create async session factory

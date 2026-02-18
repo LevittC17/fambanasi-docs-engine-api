@@ -8,7 +8,7 @@ and system events for compliance and troubleshooting.
 from datetime import datetime
 from enum import Enum as PyEnum
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -62,19 +62,12 @@ class AuditLog(Base):
 
     # Primary key
     id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        server_default="gen_random_uuid()",
-        doc="Audit log entry ID",
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), doc="Audit log entry ID",
     )
 
     # Timestamp (not using TimestampMixin as we only need created_at)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default="now()",
-        nullable=False,
-        index=True,
-        doc="When the action occurred",
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True, doc="When the action occurred",
     )
 
     # User information
@@ -124,8 +117,10 @@ class AuditLog(Base):
         Text, nullable=False, doc="Human-readable description of the action"
     )
 
-    metadata: Mapped[dict | None] = mapped_column(
-        JSONB, nullable=True, doc="Additional metadata about the action (JSON)"
+    # 'metadata' is reserved by SQLAlchemy's Declarative API, use attribute
+    # name `metadata_` while keeping the DB column name as 'metadata'.
+    metadata_: Mapped[dict | None] = mapped_column(
+        "metadata", JSONB, nullable=True, doc="Additional metadata about the action (JSON)"
     )
 
     # Before/after state for changes

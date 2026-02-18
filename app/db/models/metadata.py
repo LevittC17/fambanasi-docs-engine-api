@@ -5,7 +5,7 @@ Stores metadata extracted from document frontmatter and used for
 Pagefind search indexing and filtering.
 """
 
-from sqlalchemy import ARRAY, String, Text
+from sqlalchemy import ARRAY, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -24,10 +24,7 @@ class DocumentMetadata(Base, TimestampMixin):
 
     # Primary key
     id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        server_default="gen_random_uuid()",
-        doc="Metadata record ID",
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), doc="Metadata record ID",
     )
 
     # Document identification
