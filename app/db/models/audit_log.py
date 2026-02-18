@@ -7,13 +7,12 @@ and system events for compliance and troubleshooting.
 
 from __future__ import annotations
 
+import uuid
 from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
-from uuid import UUID
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func, text
-from sqlalchemy.dialects import postgresql
+from sqlalchemy import JSON, DateTime, Enum, ForeignKey, String, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -69,10 +68,10 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        postgresql.UUID(as_uuid=True),
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
         doc="Audit log entry ID",
     )
 
@@ -86,8 +85,8 @@ class AuditLog(Base):
     )
 
     # User information
-    user_id: Mapped[UUID | None] = mapped_column(
-        postgresql.UUID(as_uuid=True),
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -136,18 +135,18 @@ class AuditLog(Base):
     # name `metadata_` while keeping the DB column name as 'metadata'.
     metadata_: Mapped[dict[str, Any] | None] = mapped_column(
         "metadata",
-        postgresql.JSONB,
+        JSON,
         nullable=True,
         doc="Additional metadata about the action (JSON)",
     )
 
     # Before/after state for changes
     old_value: Mapped[dict[str, Any] | None] = mapped_column(
-        postgresql.JSONB, nullable=True, doc="State before the change (for updates/deletes)"
+        JSON, nullable=True, doc="State before the change (for updates/deletes)"
     )
 
     new_value: Mapped[dict[str, Any] | None] = mapped_column(
-        postgresql.JSONB, nullable=True, doc="State after the change (for creates/updates)"
+        JSON, nullable=True, doc="State after the change (for creates/updates)"
     )
 
     # Error tracking

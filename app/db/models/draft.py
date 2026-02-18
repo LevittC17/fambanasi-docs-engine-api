@@ -7,13 +7,12 @@ to work on content without committing to the repository.
 
 from __future__ import annotations
 
+import uuid
 from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
-from uuid import UUID
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, text
-from sqlalchemy.dialects import postgresql
+from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -42,10 +41,10 @@ class Draft(Base, TimestampMixin):
     __tablename__ = "drafts"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        postgresql.UUID(as_uuid=True),
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         primary_key=True,
-        server_default=text("gen_random_uuid()"),
+        default=uuid.uuid4,
         doc="Draft unique identifier",
     )
 
@@ -81,16 +80,16 @@ class Draft(Base, TimestampMixin):
     )
 
     # Authorship and review
-    author_id: Mapped[UUID] = mapped_column(
-        postgresql.UUID(as_uuid=True),
+    author_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
         doc="Author of the draft",
     )
 
-    reviewer_id: Mapped[UUID | None] = mapped_column(
-        postgresql.UUID(as_uuid=True),
+    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         doc="Reviewer user ID",

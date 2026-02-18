@@ -26,7 +26,7 @@ class TestCreateDraft:
                 "target_path": "docs/my-draft.md",
             },
         )
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_create_draft_success(

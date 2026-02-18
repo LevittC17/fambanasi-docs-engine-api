@@ -5,13 +5,12 @@ Stores user information synced from Supabase Auth, including roles
 and permissions for role-based access control.
 """
 
+import uuid
 from datetime import datetime
 from enum import StrEnum
 from typing import Any
-from uuid import UUID
 
-from sqlalchemy import Boolean, DateTime, Enum, String, Text
-from sqlalchemy.dialects import postgresql
+from sqlalchemy import Boolean, DateTime, Enum, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
@@ -36,8 +35,8 @@ class User(Base, TimestampMixin):
     __tablename__ = "users"
 
     # Primary key (matches Supabase Auth UUID)
-    id: Mapped[UUID] = mapped_column(
-        postgresql.UUID(as_uuid=True), primary_key=True, doc="User ID from Supabase Auth"
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, doc="User ID from Supabase Auth"
     )
 
     # User information
