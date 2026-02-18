@@ -7,6 +7,8 @@ and permissions for role-based access control.
 
 from datetime import datetime
 from enum import StrEnum
+from typing import Any
+from uuid import UUID as PyUUID
 
 from sqlalchemy import Boolean, DateTime, Enum, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -34,7 +36,7 @@ class User(Base, TimestampMixin):
     __tablename__ = "users"
 
     # Primary key (matches Supabase Auth UUID)
-    id: Mapped[UUID] = mapped_column(
+    id: Mapped[PyUUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, doc="User ID from Supabase Auth"
     )
 
@@ -75,7 +77,7 @@ class User(Base, TimestampMixin):
     )
 
     # User preferences (JSON)
-    preferences: Mapped[dict | None] = mapped_column(
+    preferences: Mapped[dict[str, Any] | None] = mapped_column(
         Text, nullable=True, doc="User preferences as JSON string"
     )
 

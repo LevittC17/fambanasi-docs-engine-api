@@ -6,6 +6,7 @@ used in search indexing and categorization.
 """
 
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -32,7 +33,7 @@ class MetadataCreate(MetadataBase):
     git_url: str | None = None
     word_count: int | None = None
     reading_time: int | None = None
-    custom_fields: dict | None = None
+    custom_fields: dict[str, Any] | None = None
 
 
 class MetadataUpdate(BaseModel):
@@ -50,7 +51,7 @@ class MetadataUpdate(BaseModel):
     git_url: str | None = None
     word_count: int | None = None
     reading_time: int | None = None
-    custom_fields: dict | None = None
+    custom_fields: dict[str, Any] | None = None
 
 
 class DocumentMetadataResponse(MetadataBase):
@@ -67,7 +68,7 @@ class DocumentMetadataResponse(MetadataBase):
     git_url: str | None
     word_count: int | None
     reading_time: int | None
-    custom_fields: dict | None
+    custom_fields: dict[str, Any] | None
     created_at: datetime
     updated_at: datetime
 

@@ -6,6 +6,7 @@ registration, and profile management.
 """
 
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -49,7 +50,7 @@ class UserUpdate(BaseModel):
     avatar_url: str | None = None
     role: UserRole | None = None
     is_active: bool | None = None
-    preferences: dict | None = None
+    preferences: dict[str, Any] | None = None
 
 
 class UserResponse(UserBase):

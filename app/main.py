@@ -7,6 +7,7 @@ lifecycle event handlers for database and external services.
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -137,7 +138,7 @@ async def health_check() -> JSONResponse:
     from app.services.github_service import GitHubService
     from app.services.supabase_service import SupabaseService
 
-    health_status = {
+    health_status: dict[str, Any] = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
         "version": settings.APP_VERSION,
@@ -149,8 +150,10 @@ async def health_check() -> JSONResponse:
     try:
         from app.db.session import engine
 
+        from sqlalchemy import text
+
         async with engine.connect() as conn:
-            await conn.execute("SELECT 1")
+            await conn.execute(text("SELECT 1"))
         health_status["services"]["database"] = "healthy"
     except Exception as e:
         logger.error(f"Database health check failed: {e}")

@@ -16,6 +16,7 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
 )
+from app.db.models.audit_log import AuditAction
 from app.db.models.user import User
 from app.schemas.auth import LoginRequest, LoginResponse, TokenResponse, UserResponse
 from app.services.audit_service import AuditService
@@ -142,7 +143,7 @@ async def logout(
     audit_service = AuditService()
     await audit_service.log_action(
         db=db,
-        action="logout",
+        action=AuditAction.LOGOUT,
         description=f"User logout: {current_user.email}",
         user_id=current_user.id,
     )

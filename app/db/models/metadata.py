@@ -5,6 +5,9 @@ Stores metadata extracted from document frontmatter and used for
 Pagefind search indexing and filtering.
 """
 
+from typing import Any
+from uuid import UUID as PyUUID
+
 from sqlalchemy import ARRAY, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -23,7 +26,7 @@ class DocumentMetadata(Base, TimestampMixin):
     __tablename__ = "document_metadata"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
+    id: Mapped[PyUUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
@@ -95,7 +98,7 @@ class DocumentMetadata(Base, TimestampMixin):
     )
 
     # Additional metadata (flexible JSON)
-    custom_fields: Mapped[dict | None] = mapped_column(
+    custom_fields: Mapped[dict[str, Any] | None] = mapped_column(
         Text, nullable=True, doc="Additional custom metadata as JSON string"
     )
 

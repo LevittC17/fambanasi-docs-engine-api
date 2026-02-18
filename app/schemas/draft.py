@@ -8,7 +8,7 @@ including creation, updates, and review workflow.
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 from app.db.models.draft import DraftStatus
 
@@ -89,7 +89,7 @@ class DraftStatusUpdate(BaseModel):
 
     @field_validator("review_comments")
     @classmethod
-    def validate_comments_for_rejection(cls, v: str | None, info) -> str | None:
+    def validate_comments_for_rejection(cls, v: str | None, info: ValidationInfo) -> str | None:
         """Require comments when rejecting a draft."""
         if info.data.get("status") == DraftStatus.REJECTED and not v:
             raise ValueError("Review comments are required when rejecting a draft")

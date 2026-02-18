@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import DateTime, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -23,7 +23,7 @@ class Base(DeclarativeBase):
     """
 
     # Generate __tablename__ automatically from class name
-    @classmethod
+    @declared_attr.directive
     def __tablename__(cls) -> str:
         """Generate table name from class name (snake_case)."""
         name = cls.__name__

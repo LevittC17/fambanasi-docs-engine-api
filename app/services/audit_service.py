@@ -41,7 +41,7 @@ class AuditService:
         new_value: dict[str, Any] | None = None,
         success: bool = True,
         error_message: str | None = None,
-    ) -> AuditLog:
+    ) -> AuditLog | None:
         """
         Log an action to the audit trail.
 
@@ -61,7 +61,7 @@ class AuditService:
             error_message: Error message if failed
 
         Returns:
-            Created audit log entry
+            Created audit log entry or None if failed
         """
         try:
             audit_log = AuditLog(
@@ -72,7 +72,7 @@ class AuditService:
                 ip_address=ip_address,
                 user_agent=user_agent,
                 description=description,
-                metadata=metadata,
+                metadata_=metadata,
                 old_value=old_value,
                 new_value=new_value,
                 success=success,
@@ -100,7 +100,7 @@ class AuditService:
         document_path: str,
         title: str,
         ip_address: str | None = None,
-    ) -> AuditLog:
+    ) -> AuditLog | None:
         """Log document creation."""
         return await self.log_action(
             db=db,
@@ -120,7 +120,7 @@ class AuditService:
         document_path: str,
         title: str,
         ip_address: str | None = None,
-    ) -> AuditLog:
+    ) -> AuditLog | None:
         """Log document update."""
         return await self.log_action(
             db=db,
@@ -139,7 +139,7 @@ class AuditService:
         document_path: str,
         title: str,
         ip_address: str | None = None,
-    ) -> AuditLog:
+    ) -> AuditLog | None:
         """Log document deletion."""
         return await self.log_action(
             db=db,
@@ -159,7 +159,7 @@ class AuditService:
         ip_address: str | None = None,
         user_agent: str | None = None,
         success: bool = True,
-    ) -> AuditLog:
+    ) -> AuditLog | None:
         """Log user login attempt."""
         return await self.log_action(
             db=db,

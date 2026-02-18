@@ -5,6 +5,8 @@ Automatically generates meaningful commit messages for documentation
 changes following conventional commit format.
 """
 
+from typing import Any
+
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -61,7 +63,7 @@ def generate_commit_message(
     return message
 
 
-def format_bulk_commit_message(changes: list[dict]) -> str:
+def format_bulk_commit_message(changes: list[dict[str, Any]]) -> str:
     """
     Generate commit message for bulk operations.
 
@@ -82,7 +84,7 @@ def format_bulk_commit_message(changes: list[dict]) -> str:
     if not changes:
         return "docs: Bulk update"
 
-    action_counts = {}
+    action_counts: dict[str, int] = {}
     for change in changes:
         action = change.get("action", "modify")
         action_counts[action] = action_counts.get(action, 0) + 1

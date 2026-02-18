@@ -34,7 +34,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         True if password matches, False otherwise
     """
     try:
-        return pwd_context.verify(plain_password, hashed_password)
+        return bool(pwd_context.verify(plain_password, hashed_password))
     except Exception as e:
         logger.error(f"Password verification error: {e}")
         return False
@@ -50,7 +50,7 @@ def get_password_hash(password: str) -> str:
     Returns:
         Hashed password suitable for database storage
     """
-    return pwd_context.hash(password)
+    return str(pwd_context.hash(password))
 
 
 def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
@@ -79,7 +79,7 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
 
     to_encode.update({"exp": expire, "iat": datetime.utcnow(), "type": "access"})
 
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = str(jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM))
 
     return encoded_jwt
 
@@ -99,7 +99,7 @@ def create_refresh_token(data: dict[str, Any]) -> str:
 
     to_encode.update({"exp": expire, "iat": datetime.utcnow(), "type": "refresh"})
 
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = str(jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM))
 
     return encoded_jwt
 
@@ -118,7 +118,7 @@ def decode_token(token: str) -> dict[str, Any]:
         AuthenticationError: If token is invalid or expired
     """
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = dict(jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]))
         return payload
     except JWTError as e:
         logger.warning(f"Token decode error: {e}")
@@ -141,12 +141,12 @@ def verify_supabase_token(token: str) -> dict[str, Any]:
         AuthenticationError: If token is invalid
     """
     try:
-        payload = jwt.decode(
+        payload = dict(jwt.decode(
             token,
             settings.SUPABASE_JWT_SECRET,
             algorithms=["HS256"],
             audience="authenticated",
-        )
+        ))
         return payload
     except JWTError as e:
         logger.warning(f"Supabase token verification error: {e}")

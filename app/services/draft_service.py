@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ResourceNotFoundError, ValidationError
 from app.core.logging import get_logger
+from app.db.models.audit_log import AuditAction
 from app.db.models.draft import Draft, DraftStatus
 from app.db.models.user import User, UserRole
 from app.schemas.draft import DraftCreate, DraftStatusUpdate, DraftUpdate
@@ -85,7 +86,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="draft_create",
+                action=AuditAction.DRAFT_CREATE,
                 description=f"Created draft: {draft.title}",
                 user_id=author.id,
                 resource_type="draft",
@@ -179,7 +180,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="draft_update",
+                action=AuditAction.DRAFT_UPDATE,
                 description=f"Updated draft: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",
@@ -224,7 +225,7 @@ class DraftService:
             # Log audit trail before deletion
             await self.audit.log_action(
                 db=db,
-                action="draft_delete",
+                action=AuditAction.DRAFT_DELETE,
                 description=f"Deleted draft: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",
@@ -288,7 +289,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="draft_submit",
+                action=AuditAction.DRAFT_SUBMIT,
                 description=f"Submitted draft for review: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",
@@ -350,7 +351,9 @@ class DraftService:
 
             # Log audit trail
             action = (
-                "draft_approve" if status_update.status == DraftStatus.APPROVED else "draft_reject"
+                AuditAction.DRAFT_APPROVE
+                if status_update.status == DraftStatus.APPROVED
+                else AuditAction.DRAFT_REJECT
             )
             await self.audit.log_action(
                 db=db,
@@ -448,7 +451,7 @@ class DraftService:
             # Log audit trail
             await self.audit.log_action(
                 db=db,
-                action="document_publish",
+                action=AuditAction.DOCUMENT_PUBLISH,
                 description=f"Published draft to document: {draft.title}",
                 user_id=user.id,
                 resource_type="draft",

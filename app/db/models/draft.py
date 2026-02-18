@@ -10,6 +10,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
+from uuid import UUID as PyUUID
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, text
 from sqlalchemy.dialects.postgresql import UUID
@@ -41,7 +42,7 @@ class Draft(Base, TimestampMixin):
     __tablename__ = "drafts"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
+    id: Mapped[PyUUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
@@ -80,7 +81,7 @@ class Draft(Base, TimestampMixin):
     )
 
     # Authorship and review
-    author_id: Mapped[UUID] = mapped_column(
+    author_id: Mapped[PyUUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -88,7 +89,7 @@ class Draft(Base, TimestampMixin):
         doc="Draft author user ID",
     )
 
-    reviewer_id: Mapped[UUID | None] = mapped_column(
+    reviewer_id: Mapped[PyUUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
