@@ -93,9 +93,7 @@ class WebhookPayload(BaseModel):
 class WebhookResponse(BaseModel):
     """Schema for webhook processing response."""
 
-    status: str = Field(
-        ..., description="Processing status: 'received', 'processed', 'error'"
-    )
+    status: str = Field(..., description="Processing status: 'received', 'processed', 'error'")
     message: str = Field(..., description="Human-readable status message")
     affected_files: list[str] = Field(default_factory=list)
     rebuild_triggered: bool = Field(default=False)

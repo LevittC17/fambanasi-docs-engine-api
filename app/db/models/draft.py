@@ -42,7 +42,10 @@ class Draft(Base, TimestampMixin):
 
     # Primary key
     id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), doc="Draft unique identifier",
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+        doc="Draft unique identifier",
     )
 
     # Document information
@@ -61,9 +64,7 @@ class Draft(Base, TimestampMixin):
     )
 
     # Content
-    content: Mapped[str] = mapped_column(
-        Text, nullable=False, doc="Markdown content of the draft"
-    )
+    content: Mapped[str] = mapped_column(Text, nullable=False, doc="Markdown content of the draft")
 
     frontmatter: Mapped[str | None] = mapped_column(
         Text, nullable=True, doc="YAML frontmatter metadata"
@@ -120,13 +121,9 @@ class Draft(Base, TimestampMixin):
     )
 
     # Relationships
-    author: Mapped[User] = relationship(
-        "User", foreign_keys=[author_id], lazy="joined"
-    )
+    author: Mapped[User] = relationship("User", foreign_keys=[author_id], lazy="joined")
 
-    reviewer: Mapped[User | None] = relationship(
-        "User", foreign_keys=[reviewer_id], lazy="joined"
-    )
+    reviewer: Mapped[User | None] = relationship("User", foreign_keys=[reviewer_id], lazy="joined")
 
     def __repr__(self) -> str:
         """String representation of draft."""

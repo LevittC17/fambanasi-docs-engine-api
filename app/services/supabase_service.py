@@ -73,9 +73,7 @@ class SupabaseService:
             raise
         except Exception as e:
             logger.error(f"Error verifying user {user_id}: {e}")
-            raise SupabaseError(
-                message="Failed to verify user", details={"error": str(e)}
-            ) from e
+            raise SupabaseError(message="Failed to verify user", details={"error": str(e)}) from e
 
     async def upload_file(
         self,

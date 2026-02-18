@@ -1,6 +1,5 @@
 """Unit tests for commit message generation."""
 
-
 from app.utils.commit_messages import (
     format_bulk_commit_message,
     generate_commit_message,
@@ -12,26 +11,20 @@ class TestGenerateCommitMessage:
 
     def test_create_action_with_title(self):
         """Test create action generates correct message with title."""
-        msg = generate_commit_message(
-            "create", "docs/api/auth.md", "Authentication Guide"
-        )
+        msg = generate_commit_message("create", "docs/api/auth.md", "Authentication Guide")
         assert msg.startswith("docs:")
         assert "Create" in msg
         assert "Authentication Guide" in msg
 
     def test_update_action(self):
         """Test update action generates correct message."""
-        msg = generate_commit_message(
-            "update", "docs/api/auth.md", "Authentication Guide"
-        )
+        msg = generate_commit_message("update", "docs/api/auth.md", "Authentication Guide")
         assert "Update" in msg
         assert "Authentication Guide" in msg
 
     def test_delete_action(self):
         """Test delete action generates correct message."""
-        msg = generate_commit_message(
-            "delete", "docs/api/auth.md", "Authentication Guide"
-        )
+        msg = generate_commit_message("delete", "docs/api/auth.md", "Authentication Guide")
         assert "Delete" in msg
 
     def test_move_action_with_new_path(self):

@@ -118,9 +118,7 @@ def validate_slug(slug: str) -> None:
 
     # Check format (lowercase, hyphens, numbers only)
     if not re.match(r"^[a-z0-9-]+$", slug):
-        raise ValidationError(
-            "Slug must contain only lowercase letters, numbers, and hyphens"
-        )
+        raise ValidationError("Slug must contain only lowercase letters, numbers, and hyphens")
 
     # Check for leading/trailing hyphens
     if slug.startswith("-") or slug.endswith("-"):

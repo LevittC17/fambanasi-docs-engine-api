@@ -83,9 +83,7 @@ class AuditService:
             await db.commit()
             await db.refresh(audit_log)
 
-            logger.info(
-                f"Audit log created: {action.value} by user {user_id} - {description}"
-            )
+            logger.info(f"Audit log created: {action.value} by user {user_id} - {description}")
 
             return audit_log
 

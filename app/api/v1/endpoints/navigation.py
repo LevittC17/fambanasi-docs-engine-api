@@ -5,7 +5,6 @@ Provides folder-aware navigation tree and breadcrumb generation
 that mirrors the Git repository structure.
 """
 
-
 from fastapi import APIRouter, Query
 
 from app.core.logging import get_logger

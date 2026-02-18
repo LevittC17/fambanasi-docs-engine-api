@@ -72,9 +72,7 @@ class DocumentService:
             frontmatter_dict, content = extract_frontmatter(file_info["content"])
 
             # Create frontmatter schema
-            frontmatter = (
-                DocumentFrontmatter(**frontmatter_dict) if frontmatter_dict else None
-            )
+            frontmatter = DocumentFrontmatter(**frontmatter_dict) if frontmatter_dict else None
 
             # Create commit info
             last_commit = None
@@ -83,9 +81,7 @@ class DocumentService:
 
             return DocumentResponse(
                 path=path,
-                title=frontmatter.title
-                if frontmatter
-                else path.split("/")[-1].replace(".md", ""),
+                title=frontmatter.title if frontmatter else path.split("/")[-1].replace(".md", ""),
                 content=content,
                 frontmatter=frontmatter,
                 last_modified=file_info["last_modified"],
@@ -127,12 +123,8 @@ class DocumentService:
             logger.info(f"Creating document: {document.path}")
 
             # Prepare content with frontmatter
-            frontmatter_dict = (
-                document.frontmatter.model_dump() if document.frontmatter else {}
-            )
-            full_content = combine_frontmatter_and_content(
-                frontmatter_dict, document.content
-            )
+            frontmatter_dict = document.frontmatter.model_dump() if document.frontmatter else {}
+            full_content = combine_frontmatter_and_content(frontmatter_dict, document.content)
 
             # Create file in GitHub
             result = await self.github.create_file(
@@ -209,9 +201,7 @@ class DocumentService:
 
             # Merge frontmatter
             current_fm = current.frontmatter.model_dump() if current.frontmatter else {}
-            update_fm = (
-                document.frontmatter.model_dump() if document.frontmatter else {}
-            )
+            update_fm = document.frontmatter.model_dump() if document.frontmatter else {}
             merged_fm = {**current_fm, **update_fm}
 
             # Update title in frontmatter if changed
@@ -370,9 +360,7 @@ class DocumentService:
             await self.metadata.delete_metadata_by_path(db, old_path)
 
             # Create new metadata
-            frontmatter_dict = (
-                document.frontmatter.model_dump() if document.frontmatter else {}
-            )
+            frontmatter_dict = document.frontmatter.model_dump() if document.frontmatter else {}
             await self.metadata.sync_metadata_from_content(
                 db=db,
                 file_path=new_path,

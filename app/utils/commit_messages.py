@@ -48,18 +48,14 @@ def generate_commit_message(
     elif action == "delete":
         message = f"docs: Delete {doc_name}"
     elif action == "move":
-        new_filename = (
-            new_path.split("/")[-1].replace(".md", "") if new_path else "unknown"
-        )
+        new_filename = new_path.split("/")[-1].replace(".md", "") if new_path else "unknown"
         message = f"docs: Move {doc_name} to {new_filename}"
     else:
         message = f"docs: Modify {doc_name}"
 
     # Add path context if not obvious
     if "/" in path and path.count("/") > 1:
-        category = (
-            path.split("/")[1] if path.startswith("docs/") else path.split("/")[0]
-        )
+        category = path.split("/")[1] if path.startswith("docs/") else path.split("/")[0]
         message += f" ({category})"
 
     return message

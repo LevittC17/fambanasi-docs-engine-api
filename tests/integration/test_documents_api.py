@@ -18,9 +18,7 @@ class TestGetDocument:
     """Integration tests for GET /documents/{path}."""
 
     @pytest.mark.asyncio
-    async def test_get_document_success(
-        self, async_client: AsyncClient, mock_github_service
-    ):
+    async def test_get_document_success(self, async_client: AsyncClient, mock_github_service):
         """Test successful document retrieval."""
         with patch(
             "app.services.document_service.GitHubService",
@@ -35,9 +33,7 @@ class TestGetDocument:
         assert "title" in data
 
     @pytest.mark.asyncio
-    async def test_get_document_with_branch(
-        self, async_client: AsyncClient, mock_github_service
-    ):
+    async def test_get_document_with_branch(self, async_client: AsyncClient, mock_github_service):
         """Test document retrieval with specific branch."""
         with patch(
             "app.services.document_service.GitHubService",
@@ -73,10 +69,12 @@ class TestCreateDocument:
         viewer_user: User,
     ):
         """Test that document creation requires Editor role."""
-        token = create_access_token({
-            "sub": str(viewer_user.id),
-            "role": viewer_user.role.value,
-        })
+        token = create_access_token(
+            {
+                "sub": str(viewer_user.id),
+                "role": viewer_user.role.value,
+            }
+        )
 
         response = await async_client.post(
             "/api/v1/documents/",
@@ -98,10 +96,12 @@ class TestCreateDocument:
         db_session,
     ):
         """Test successful document creation by editor."""
-        token = create_access_token({
-            "sub": str(editor_user.id),
-            "role": editor_user.role.value,
-        })
+        token = create_access_token(
+            {
+                "sub": str(editor_user.id),
+                "role": editor_user.role.value,
+            }
+        )
 
         with patch(
             "app.services.document_service.GitHubService",
@@ -127,10 +127,12 @@ class TestCreateDocument:
         editor_user: User,
     ):
         """Test that invalid path is rejected."""
-        token = create_access_token({
-            "sub": str(editor_user.id),
-            "role": editor_user.role.value,
-        })
+        token = create_access_token(
+            {
+                "sub": str(editor_user.id),
+                "role": editor_user.role.value,
+            }
+        )
 
         response = await async_client.post(
             "/api/v1/documents/",
@@ -151,10 +153,12 @@ class TestCreateDocument:
         editor_user: User,
     ):
         """Test that empty content is rejected."""
-        token = create_access_token({
-            "sub": str(editor_user.id),
-            "role": editor_user.role.value,
-        })
+        token = create_access_token(
+            {
+                "sub": str(editor_user.id),
+                "role": editor_user.role.value,
+            }
+        )
 
         response = await async_client.post(
             "/api/v1/documents/",
@@ -179,10 +183,12 @@ class TestDeleteDocument:
         viewer_user: User,
     ):
         """Test that deletion requires at least Editor role."""
-        token = create_access_token({
-            "sub": str(viewer_user.id),
-            "role": viewer_user.role.value,
-        })
+        token = create_access_token(
+            {
+                "sub": str(viewer_user.id),
+                "role": viewer_user.role.value,
+            }
+        )
 
         response = await async_client.delete(
             "/api/v1/documents/docs/test.md",

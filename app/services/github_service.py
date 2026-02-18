@@ -105,12 +105,8 @@ class GitHubService:
                 "sha": file_content.sha,
                 "size": file_content.size,
                 "url": file_content.html_url,
-                "last_modified": last_commit.commit.author.date
-                if last_commit
-                else None,
-                "last_commit": self._format_commit_info(last_commit)
-                if last_commit
-                else None,
+                "last_modified": last_commit.commit.author.date if last_commit else None,
+                "last_commit": self._format_commit_info(last_commit) if last_commit else None,
             }
 
         except GithubException as e:
@@ -349,9 +345,7 @@ class GitHubService:
 
             # Generate commit message if not provided
             if not message:
-                message = generate_commit_message(
-                    action="move", path=old_path, new_path=new_path
-                )
+                message = generate_commit_message(action="move", path=old_path, new_path=new_path)
 
             logger.info(f"Moving file: {old_path} -> {new_path}")
 
@@ -403,9 +397,7 @@ class GitHubService:
             GitHubAPIError: If listing fails
         """
         try:
-            full_path = (
-                self._get_full_path(directory) if directory else settings.DOCS_ROOT_PATH
-            )
+            full_path = self._get_full_path(directory) if directory else settings.DOCS_ROOT_PATH
             branch = branch or settings.GITHUB_BRANCH
 
             logger.info(f"Listing files in: {full_path}")
@@ -419,13 +411,15 @@ class GitHubService:
 
             for item in contents:
                 if item.type == "file":
-                    files.append({
-                        "path": item.path.replace(f"{settings.DOCS_ROOT_PATH}/", ""),
-                        "name": item.name,
-                        "size": item.size,
-                        "sha": item.sha,
-                        "url": item.html_url,
-                    })
+                    files.append(
+                        {
+                            "path": item.path.replace(f"{settings.DOCS_ROOT_PATH}/", ""),
+                            "name": item.name,
+                            "size": item.size,
+                            "sha": item.sha,
+                            "url": item.html_url,
+                        }
+                    )
                 elif item.type == "dir" and recursive:
                     # Recursively list subdirectory
                     subdir_files = await self.list_files(
@@ -516,9 +510,7 @@ class GitHubService:
             source_sha = source_ref.object.sha
 
             # Create new branch
-            new_ref = self._repo.create_git_ref(
-                ref=f"refs/heads/{branch_name}", sha=source_sha
-            )
+            new_ref = self._repo.create_git_ref(ref=f"refs/heads/{branch_name}", sha=source_sha)
 
             return {
                 "branch": branch_name,

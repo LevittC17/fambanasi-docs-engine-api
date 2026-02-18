@@ -5,7 +5,6 @@ Generates and manages hierarchical navigation structure
 mirroring the Git repository organization.
 """
 
-
 from app.core.logging import get_logger
 from app.schemas.navigation import NavigationNode, NavigationTree
 from app.services.github_service import GitHubService
@@ -176,17 +175,21 @@ class NavigationService:
 
         for part in parts[:-1]:  # Exclude filename
             current_path = f"{current_path}/{part}" if current_path else part
-            breadcrumbs.append({
-                "label": part.replace("-", " ").replace("_", " ").title(),
-                "path": current_path,
-            })
+            breadcrumbs.append(
+                {
+                    "label": part.replace("-", " ").replace("_", " ").title(),
+                    "path": current_path,
+                }
+            )
 
         # Add current document
         if parts:
             filename = parts[-1].replace(".md", "")
-            breadcrumbs.append({
-                "label": filename.replace("-", " ").replace("_", " ").title(),
-                "path": path,
-            })
+            breadcrumbs.append(
+                {
+                    "label": filename.replace("-", " ").replace("_", " ").title(),
+                    "path": path,
+                }
+            )
 
         return breadcrumbs

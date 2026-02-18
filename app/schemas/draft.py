@@ -47,9 +47,7 @@ class DraftCreate(DraftBase):
         if v.startswith("/"):
             raise ValueError("Target path should not start with /")
         if ".." in v:
-            raise ValueError(
-                "Target path cannot contain .. (parent directory references)"
-            )
+            raise ValueError("Target path cannot contain .. (parent directory references)")
         return v
 
 
@@ -79,9 +77,7 @@ class DraftUpdate(BaseModel):
             if v.startswith("/"):
                 raise ValueError("Target path should not start with /")
             if ".." in v:
-                raise ValueError(
-                    "Target path cannot contain .. (parent directory references)"
-                )
+                raise ValueError("Target path cannot contain .. (parent directory references)")
         return v
 
 

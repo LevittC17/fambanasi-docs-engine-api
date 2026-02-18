@@ -273,9 +273,7 @@ class DraftService:
 
             # Check current status
             if draft.status != DraftStatus.DRAFT:
-                raise ValidationError(
-                    f"Cannot submit draft with status: {draft.status}"
-                )
+                raise ValidationError(f"Cannot submit draft with status: {draft.status}")
 
             logger.info(f"Submitting draft for review: {draft_id}")
 
@@ -337,9 +335,7 @@ class DraftService:
 
             # Check current status
             if draft.status != DraftStatus.IN_REVIEW:
-                raise ValidationError(
-                    f"Cannot review draft with status: {draft.status}"
-                )
+                raise ValidationError(f"Cannot review draft with status: {draft.status}")
 
             logger.info(f"Updating draft status: {draft_id} -> {status_update.status}")
 
@@ -354,9 +350,7 @@ class DraftService:
 
             # Log audit trail
             action = (
-                "draft_approve"
-                if status_update.status == DraftStatus.APPROVED
-                else "draft_reject"
+                "draft_approve" if status_update.status == DraftStatus.APPROVED else "draft_reject"
             )
             await self.audit.log_action(
                 db=db,
@@ -412,9 +406,7 @@ class DraftService:
 
             # Check status
             if draft.status not in [DraftStatus.APPROVED, DraftStatus.DRAFT]:
-                raise ValidationError(
-                    f"Cannot publish draft with status: {draft.status}"
-                )
+                raise ValidationError(f"Cannot publish draft with status: {draft.status}")
 
             logger.info(f"Publishing draft: {draft_id} to {draft.target_path}")
 
@@ -508,9 +500,7 @@ class DraftService:
             stmt = stmt.where(Draft.status == status)
 
         # Get total count
-        count_result = await db.execute(
-            select(func.count()).select_from(stmt.subquery())
-        )
+        count_result = await db.execute(select(func.count()).select_from(stmt.subquery()))
         total = count_result.scalar()
 
         # Apply pagination and ordering

@@ -110,9 +110,11 @@ async def get_metadata_stats(
         tags=stats["tags"],
         avg_word_count=stats["avg_word_count"],
         avg_reading_time=stats["avg_reading_time"],
-        last_updated=datetime.fromisoformat(stats["last_updated"])
-        if stats.get("last_updated")
-        else datetime.utcnow(),
+        last_updated=(
+            datetime.fromisoformat(stats["last_updated"])
+            if stats.get("last_updated")
+            else datetime.utcnow()
+        ),
     )
 
 

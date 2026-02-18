@@ -83,21 +83,15 @@ class MetadataSearchQuery(BaseModel):
     team: str | None = Field(None, description="Filter by team")
     author: str | None = Field(None, description="Filter by author")
     version: str | None = Field(None, description="Filter by version")
-    limit: int = Field(
-        default=50, ge=1, le=100, description="Maximum results to return"
-    )
+    limit: int = Field(default=50, ge=1, le=100, description="Maximum results to return")
     offset: int = Field(default=0, ge=0, description="Offset for pagination")
 
 
 class MetadataBulkUpdate(BaseModel):
     """Schema for bulk metadata updates."""
 
-    file_paths: list[str] = Field(
-        ..., min_length=1, description="List of file paths to update"
-    )
-    updates: MetadataUpdate = Field(
-        ..., description="Updates to apply to all specified documents"
-    )
+    file_paths: list[str] = Field(..., min_length=1, description="List of file paths to update")
+    updates: MetadataUpdate = Field(..., description="Updates to apply to all specified documents")
 
 
 class MetadataStatsResponse(BaseModel):

@@ -81,18 +81,14 @@ class GitHubAPIError(BaseAPIError):
     """Raised when GitHub API operation fails."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
-        super().__init__(
-            message=f"GitHub API error: {message}", status_code=502, details=details
-        )
+        super().__init__(message=f"GitHub API error: {message}", status_code=502, details=details)
 
 
 class SupabaseError(BaseAPIError):
     """Raised when Supabase operation fails."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
-        super().__init__(
-            message=f"Supabase error: {message}", status_code=502, details=details
-        )
+        super().__init__(message=f"Supabase error: {message}", status_code=502, details=details)
 
 
 class RateLimitExceededError(BaseAPIError):

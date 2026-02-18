@@ -4,7 +4,6 @@ Integration tests for draft API endpoints.
 Tests the draft creation, review workflow, and publishing.
 """
 
-
 import pytest
 from httpx import AsyncClient
 
@@ -36,10 +35,12 @@ class TestCreateDraft:
         viewer_user: User,
     ):
         """Test successful draft creation by any authenticated user."""
-        token = create_access_token({
-            "sub": str(viewer_user.id),
-            "role": viewer_user.role.value,
-        })
+        token = create_access_token(
+            {
+                "sub": str(viewer_user.id),
+                "role": viewer_user.role.value,
+            }
+        )
 
         response = await async_client.post(
             "/api/v1/drafts/",
@@ -64,10 +65,12 @@ class TestCreateDraft:
         viewer_user: User,
     ):
         """Test that invalid target path is rejected."""
-        token = create_access_token({
-            "sub": str(viewer_user.id),
-            "role": viewer_user.role.value,
-        })
+        token = create_access_token(
+            {
+                "sub": str(viewer_user.id),
+                "role": viewer_user.role.value,
+            }
+        )
 
         response = await async_client.post(
             "/api/v1/drafts/",
@@ -97,14 +100,18 @@ class TestDraftWorkflow:
         Test the complete draft workflow:
         create -> submit -> review -> (publish skipped as it needs GitHub mock)
         """
-        viewer_token = create_access_token({
-            "sub": str(viewer_user.id),
-            "role": viewer_user.role.value,
-        })
-        editor_token = create_access_token({
-            "sub": str(editor_user.id),
-            "role": editor_user.role.value,
-        })
+        viewer_token = create_access_token(
+            {
+                "sub": str(viewer_user.id),
+                "role": viewer_user.role.value,
+            }
+        )
+        editor_token = create_access_token(
+            {
+                "sub": str(editor_user.id),
+                "role": editor_user.role.value,
+            }
+        )
 
         # Step 1: Create draft
         create_resp = await async_client.post(
@@ -147,16 +154,20 @@ class TestDraftWorkflow:
         editor_user: User,
     ):
         """Test that viewer cannot approve/reject drafts."""
-        viewer_token = create_access_token({
-            "sub": str(viewer_user.id),
-            "role": viewer_user.role.value,
-        })
+        viewer_token = create_access_token(
+            {
+                "sub": str(viewer_user.id),
+                "role": viewer_user.role.value,
+            }
+        )
 
         # Create and submit draft as editor
-        editor_token = create_access_token({
-            "sub": str(editor_user.id),
-            "role": editor_user.role.value,
-        })
+        editor_token = create_access_token(
+            {
+                "sub": str(editor_user.id),
+                "role": editor_user.role.value,
+            }
+        )
 
         create_resp = await async_client.post(
             "/api/v1/drafts/",

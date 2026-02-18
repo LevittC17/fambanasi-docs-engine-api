@@ -30,9 +30,7 @@ class Settings(BaseSettings):
     )
 
     # Application Settings
-    APP_NAME: str = Field(
-        default="Fambanasi Docs Engine API", description="Application name"
-    )
+    APP_NAME: str = Field(default="Fambanasi Docs Engine API", description="Application name")
     APP_VERSION: str = Field(default="1.0.0", description="Application version")
     DEBUG: bool = Field(default=False, description="Debug mode flag")
     ENVIRONMENT: str = Field(
@@ -60,69 +58,39 @@ class Settings(BaseSettings):
         default=["http://localhost:3000", "http://localhost:3001"],
         description="Allowed CORS origins",
     )
-    CORS_ALLOW_CREDENTIALS: bool = Field(
-        default=True, description="Allow credentials in CORS"
-    )
-    CORS_ALLOW_METHODS: list[str] = Field(
-        default=["*"], description="Allowed HTTP methods"
-    )
-    CORS_ALLOW_HEADERS: list[str] = Field(
-        default=["*"], description="Allowed HTTP headers"
-    )
+    CORS_ALLOW_CREDENTIALS: bool = Field(default=True, description="Allow credentials in CORS")
+    CORS_ALLOW_METHODS: list[str] = Field(default=["*"], description="Allowed HTTP methods")
+    CORS_ALLOW_HEADERS: list[str] = Field(default=["*"], description="Allowed HTTP headers")
 
     # Database Settings (Supabase PostgreSQL)
-    DATABASE_URL: PostgresDsn = Field(
-        ..., description="PostgreSQL database URL from Supabase"
-    )
-    DATABASE_POOL_SIZE: int = Field(
-        default=20, description="Database connection pool size"
-    )
-    DATABASE_MAX_OVERFLOW: int = Field(
-        default=10, description="Max overflow connections"
-    )
-    DATABASE_ECHO: bool = Field(
-        default=False, description="Echo SQL queries (dev only)"
-    )
+    DATABASE_URL: PostgresDsn = Field(..., description="PostgreSQL database URL from Supabase")
+    DATABASE_POOL_SIZE: int = Field(default=20, description="Database connection pool size")
+    DATABASE_MAX_OVERFLOW: int = Field(default=10, description="Max overflow connections")
+    DATABASE_ECHO: bool = Field(default=False, description="Echo SQL queries (dev only)")
 
     # Supabase Settings
     SUPABASE_URL: str = Field(..., description="Supabase project URL")
     SUPABASE_ANON_KEY: str = Field(..., description="Supabase anonymous/public key")
-    SUPABASE_SERVICE_KEY: str = Field(
-        ..., description="Supabase service role key (private)"
-    )
-    SUPABASE_JWT_SECRET: str = Field(
-        ..., description="Supabase JWT secret for token validation"
-    )
+    SUPABASE_SERVICE_KEY: str = Field(..., description="Supabase service role key (private)")
+    SUPABASE_JWT_SECRET: str = Field(..., description="Supabase JWT secret for token validation")
     SUPABASE_BUCKET_NAME: str = Field(
         default="docs-media", description="Supabase storage bucket for media"
     )
 
     # GitHub Settings
-    GITHUB_TOKEN: str = Field(
-        ..., description="GitHub Personal Access Token with repo permissions"
-    )
+    GITHUB_TOKEN: str = Field(..., description="GitHub Personal Access Token with repo permissions")
     GITHUB_OWNER: str = Field(..., description="GitHub repository owner/organization")
-    GITHUB_REPO: str = Field(
-        ..., description="GitHub repository name (fambanasi-docs-content)"
-    )
+    GITHUB_REPO: str = Field(..., description="GitHub repository name (fambanasi-docs-content)")
     GITHUB_BRANCH: str = Field(default="main", description="Default branch for commits")
-    GITHUB_WEBHOOK_SECRET: str = Field(
-        ..., description="Secret for validating GitHub webhooks"
-    )
+    GITHUB_WEBHOOK_SECRET: str = Field(..., description="Secret for validating GitHub webhooks")
 
     # Redis Settings (for caching and rate limiting)
-    REDIS_URL: str = Field(
-        default="redis://localhost:6379/0", description="Redis connection URL"
-    )
-    REDIS_CACHE_TTL: int = Field(
-        default=3600, description="Cache TTL in seconds (1 hour)"
-    )
+    REDIS_URL: str = Field(default="redis://localhost:6379/0", description="Redis connection URL")
+    REDIS_CACHE_TTL: int = Field(default=3600, description="Cache TTL in seconds (1 hour)")
 
     # Rate Limiting
     RATE_LIMIT_ENABLED: bool = Field(default=True, description="Enable rate limiting")
-    RATE_LIMIT_PER_MINUTE: int = Field(
-        default=100, description="Max requests per minute per user"
-    )
+    RATE_LIMIT_PER_MINUTE: int = Field(default=100, description="Max requests per minute per user")
 
     # File Upload Settings
     MAX_UPLOAD_SIZE: int = Field(
@@ -154,14 +122,10 @@ class Settings(BaseSettings):
         default="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         description="Log message format",
     )
-    LOG_FILE: str | None = Field(
-        default=None, description="Log file path (None for stdout only)"
-    )
+    LOG_FILE: str | None = Field(default=None, description="Log file path (None for stdout only)")
 
     # Monitoring & Observability
-    SENTRY_DSN: str | None = Field(
-        default=None, description="Sentry DSN for error tracking"
-    )
+    SENTRY_DSN: str | None = Field(default=None, description="Sentry DSN for error tracking")
     ENABLE_METRICS: bool = Field(default=True, description="Enable Prometheus metrics")
 
     @field_validator("CORS_ORIGINS", mode="before")

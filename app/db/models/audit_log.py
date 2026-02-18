@@ -68,12 +68,19 @@ class AuditLog(Base):
 
     # Primary key
     id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), doc="Audit log entry ID",
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+        doc="Audit log entry ID",
     )
 
     # Timestamp (not using TimestampMixin as we only need created_at)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True, doc="When the action occurred",
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True,
+        doc="When the action occurred",
     )
 
     # User information

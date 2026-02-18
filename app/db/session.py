@@ -15,6 +15,7 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
+
 # Create async engine with connection pooling
 def _ensure_async_driver(url: str) -> str:
     """Ensure the database URL uses an async driver (asyncpg) for async engine.

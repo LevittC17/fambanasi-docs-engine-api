@@ -1,6 +1,5 @@
 """Unit tests for markdown utilities."""
 
-
 from app.utils.markdown import (
     estimate_reading_time,
     extract_excerpt,

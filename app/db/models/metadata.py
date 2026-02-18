@@ -24,7 +24,10 @@ class DocumentMetadata(Base, TimestampMixin):
 
     # Primary key
     id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"), doc="Metadata record ID",
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+        doc="Metadata record ID",
     )
 
     # Document identification
@@ -68,9 +71,7 @@ class DocumentMetadata(Base, TimestampMixin):
         Text, nullable=True, doc="Short description or excerpt"
     )
 
-    author: Mapped[str | None] = mapped_column(
-        String(255), nullable=True, doc="Document author"
-    )
+    author: Mapped[str | None] = mapped_column(String(255), nullable=True, doc="Document author")
 
     # Version information
     version: Mapped[str | None] = mapped_column(
@@ -87,9 +88,7 @@ class DocumentMetadata(Base, TimestampMixin):
     )
 
     # Search optimization
-    word_count: Mapped[int | None] = mapped_column(
-        nullable=True, doc="Approximate word count"
-    )
+    word_count: Mapped[int | None] = mapped_column(nullable=True, doc="Approximate word count")
 
     reading_time: Mapped[int | None] = mapped_column(
         nullable=True, doc="Estimated reading time in minutes"

@@ -146,10 +146,12 @@ def extract_table_of_contents(text: str) -> list[dict[str, str]]:
         anchor = re.sub(r"[^\w\s-]", "", anchor)
         anchor = re.sub(r"[\s_]+", "-", anchor)
 
-        toc.append({
-            "level": level,
-            "text": heading_text.strip(),
-            "anchor": anchor,
-        })
+        toc.append(
+            {
+                "level": level,
+                "text": heading_text.strip(),
+                "anchor": anchor,
+            }
+        )
 
     return toc

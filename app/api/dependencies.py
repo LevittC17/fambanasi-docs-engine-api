@@ -211,9 +211,7 @@ def get_pagination_params(page: int = 1, page_size: int = 50) -> dict[str, int]:
 
 
 async def get_optional_user(
-    credentials: Annotated[
-        HTTPAuthorizationCredentials | None, Depends(security)
-    ] = None,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)] = None,
     db: Annotated[AsyncSession, Depends(get_db)] = None,
 ) -> User | None:
     """

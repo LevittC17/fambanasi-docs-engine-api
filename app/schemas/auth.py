@@ -24,9 +24,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """Schema for creating a new user."""
 
-    password: str = Field(
-        ..., min_length=8, max_length=100, description="User password"
-    )
+    password: str = Field(..., min_length=8, max_length=100, description="User password")
     role: UserRole = Field(default=UserRole.VIEWER, description="User role")
 
     @field_validator("password")

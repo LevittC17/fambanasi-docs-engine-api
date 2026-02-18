@@ -149,8 +149,7 @@ async def handle_github_webhook(  # noqa: C901
     # Get affected documentation files
     affected_docs = payload.affected_docs
     logger.info(
-        f"Webhook received: {len(affected_docs)} docs affected. "
-        f"Pusher: {payload.pusher.name}"
+        f"Webhook received: {len(affected_docs)} docs affected. " f"Pusher: {payload.pusher.name}"
     )
 
     # Process each affected file
