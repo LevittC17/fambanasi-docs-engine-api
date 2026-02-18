@@ -82,7 +82,11 @@ class DocumentService:
 
             return DocumentResponse(
                 path=path,
-                title=frontmatter.title if frontmatter and frontmatter.title else path.split("/")[-1].replace(".md", ""),
+                title=(
+                    frontmatter.title
+                    if frontmatter and frontmatter.title
+                    else path.split("/")[-1].replace(".md", "")
+                ),
                 content=content,
                 frontmatter=frontmatter,
                 last_modified=file_info["last_modified"],

@@ -141,12 +141,14 @@ def verify_supabase_token(token: str) -> dict[str, Any]:
         AuthenticationError: If token is invalid
     """
     try:
-        payload = dict(jwt.decode(
-            token,
-            settings.SUPABASE_JWT_SECRET,
-            algorithms=["HS256"],
-            audience="authenticated",
-        ))
+        payload = dict(
+            jwt.decode(
+                token,
+                settings.SUPABASE_JWT_SECRET,
+                algorithms=["HS256"],
+                audience="authenticated",
+            )
+        )
         return payload
     except JWTError as e:
         logger.warning(f"Supabase token verification error: {e}")

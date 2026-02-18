@@ -43,7 +43,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # In-memory fallback if Redis unavailable
         self._memory_cache: dict[str, dict[str, Any]] = {}
 
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """
         Process request with rate limiting.
 

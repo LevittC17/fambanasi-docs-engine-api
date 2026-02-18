@@ -135,7 +135,10 @@ class AuditLog(Base):
     # 'metadata' is reserved by SQLAlchemy's Declarative API, use attribute
     # name `metadata_` while keeping the DB column name as 'metadata'.
     metadata_: Mapped[dict[str, Any] | None] = mapped_column(
-        "metadata", postgresql.JSONB, nullable=True, doc="Additional metadata about the action (JSON)"
+        "metadata",
+        postgresql.JSONB,
+        nullable=True,
+        doc="Additional metadata about the action (JSON)",
     )
 
     # Before/after state for changes

@@ -23,7 +23,9 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
     in the request state for downstream processing.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """
         Process request and handle authentication.
 
